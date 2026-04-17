@@ -1,21 +1,27 @@
 import { useEffect, useState } from "react";
 import { Method } from "./data/types";
-import { ProblemInput, ProblemaLineal } from "./data/interfaces";
+import { ProblemaLineal } from "./data/interfaces";
 import { STORAGE_KEY } from "./data/constants";
-import { getInitialProblem } from "./utiles/input";
-import { parseNumericValue } from "./utiles/numeros";
 import { solveGraphical, solveSimplex, solveDualSimplex, solveTwoPhase } from "./utils/methodWrappers";
 import { Header } from "./components/Header";
 import { ProblemForm } from "./components/ProblemaForm";
 import { SolucionDisplay } from "./components/SolucionDisplay";
+import { problemaEjemplo } from "./data/problemaEjemplo";
 
 const PROBLEM_STORAGE_KEY = "lp-problem-state";
 
 export function App() {
-  const [problem, setProblem] = useState<ProblemInput>(() => {
+  const [problem, setProblem] = useState<ProblemaLineal>(() => {
     const storedProblem = localStorage.getItem(PROBLEM_STORAGE_KEY);
-    if (storedProblem) return JSON.parse(storedProblem) as ProblemInput;
-    return getInitialProblem();
+    if (storedProblem) {
+      try {
+        const parsed = JSON.parse(storedProblem) as ProblemaLineal;
+        if (parsed && parsed.numVariables > 0 && parsed.desigualdades?.length > 0) {
+          return parsed;
+        }
+      } catch (e) { console.error("Error al parsear el problema guardado:", e); }
+    }
+    return problemaEjemplo;
   });
   const [method, setMethod] = useState<Method>(() => {
     const storedMethod = localStorage.getItem("lp-method");
@@ -62,15 +68,15 @@ export function App() {
 
   const solveProblem = () => {
     const problemaLineal: ProblemaLineal = {
-      FuncionObjetivo: problem.objective.map(parseNumericValue),
-      desigualdades: problem.constraints.map((c, i) => ({
+      FuncionObjetivo: problem.FuncionObjetivo,
+      desigualdades: problem.desigualdades.map((c, i) => ({
         id: `R${i + 1}`,
-        coeficientes: c.coeffs.map(parseNumericValue),
-        operador: c.operator as "<=" | ">=" | "=",
-        rhs: parseNumericValue(c.rhs)
+        coeficientes: c.coeficientes,
+        operador: c.operador as "<=" | ">=" | "=",
+        rhs: c.rhs
       })),
-      tipo_optimizacion: problem.optimize,
-      numVariables: problem.variableCount
+      tipo_optimizacion: problem.tipo_optimizacion,
+      numVariables: problem.numVariables
     };
 
     let result: any;

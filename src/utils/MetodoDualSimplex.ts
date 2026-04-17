@@ -129,12 +129,16 @@ export function resolverMetodoDualSimplex(
   }
 
   return {
+    method: "dualSimplex",
     tablas,
     ValorOptimo: optimalValue,
     variables,
-    es_indefinida: false,
-    es_infactible: resultado.es_infactible,
-    es_degenerada: esDegenerada,
-    tipo_solucion: tieneSolucionesMultiples ? "Multiple" : "Unica",
+    analysis: {
+      observaciones: [],
+      acotada: true,
+      factible: true,
+      degeneracion: esDegenerada,
+      tipo_solucion: tieneSolucionesMultiples ? "Multiple" : "Unica"
+    }
   };
 }

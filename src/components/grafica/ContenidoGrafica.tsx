@@ -1,4 +1,4 @@
-import { SolucionGrafica } from "@/types";
+import { SolucionGrafica } from "@/data/interfaces";
 
 export function renderCanvas(
   canvas: HTMLCanvasElement,

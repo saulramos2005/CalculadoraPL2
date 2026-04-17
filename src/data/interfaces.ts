@@ -1,51 +1,6 @@
-import { Method, OptType as Optimizacion, Operator, SolveStatus} from "./types";
+import { OptType as Optimizacion, Method } from "./types";
 
-export interface ConstraintInput {
-  coeffs: string[];
-  operator: Operator;
-  rhs: string;
-}
-
-export interface ProblemInput {
-  variableCount: number;
-  objective: string[];
-  optimize: Optimizacion;
-  constraints: ConstraintInput[];
-}
-
-export interface IterationStep {
-  iteration: number;
-  pivot: string;
-  headers: string[];
-  tableau: number[][];
-}
-
-export interface Analysis {
-  tipoSolucion: string;
-  degeneracion: boolean;
-  factible: boolean;
-  acotada: boolean;
-  observaciones: string[];
-}
-
-export interface MethodResult {
-  method: Method;
-  status: SolveStatus;
-  message: string;
-  objectiveValue: number | null;
-  solution: number[];
-  iterations: IterationStep[];
-  headers: string[];
-  finalTableau: number[][];
-  analysis: Analysis;
-  generatedAt: string;
-  graphPoints?: Array<{ x: number; y: number }>;
-  feasibleRegion?: Array<{ x: number; y: number }>;
-  graficaResult?: SolucionGrafica;
-  simplexResult?: SolucionSimplex;
-  FuncionObjetivo?: number[];
-  tipo_optimizacion?: Optimizacion;
-}
+export type MethodResult = SolucionGrafica | SolucionSimplex;
 
 export interface Variable {
   nombre: string;
@@ -79,12 +34,17 @@ export interface ProblemaLineal {
 }
 
 export interface Solucion {
+  method: Method;
   ValorOptimo: number;
   variables?: { [key: string]: number };
-  es_indefinida: boolean;
-  es_infactible: boolean;
-  es_degenerada: boolean;
-  tipo_solucion: string;
+  analysis:{
+    observaciones: string[];
+    acotada: boolean;
+    factible: boolean;
+    degeneracion: boolean;
+    tipo_solucion: string;
+  }
+  
 }
 
 export interface SolucionSimplex extends Solucion{

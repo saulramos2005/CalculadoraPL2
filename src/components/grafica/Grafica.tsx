@@ -4,7 +4,6 @@ import { HeaderGrafica } from "./HeaderGrafica";
 import { TablaVertices } from "./TablaVertices";
 import { renderCanvas } from "./ContenidoGrafica"; // Nueva lógica de dibujo
 import LabelFlotante from "./LabelFlotante";
-import AlertaTipoSolucion  from "./AlertaTipoSolucion";
 import { useInteraccionGrafica } from "./useInteraccionGrafica";
 import DetallesVertice from "./DetallesVertice";
 
@@ -41,8 +40,6 @@ export default function GraficaSolucion({
     handlers 
   } = useInteraccionGrafica(canvasRef, solucion);
 
-
-
   // Efecto de Redibujado
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -69,7 +66,7 @@ export default function GraficaSolucion({
 
   return (
     <div className="flex flex-col gap-4">
-      {!solucion.es_infactible && (
+      {solucion.analysis.factible && (
         <div ref={fullscreenContainerRef} className={`flex flex-col gap-4 ${isFullscreen ? "bg-white p-4 h-screen overflow-hidden" : ""}`}>
           <HeaderGrafica
             onReset={() => {
@@ -100,24 +97,19 @@ export default function GraficaSolucion({
             onTouchStart={handlers.onTouchStart}
             onTouchMove={handlers.onTouchMove}
             onTouchEnd={handlers.onTouchEnd}
-            className={`w-full cursor-move touch-none ${isFullscreen ? "h-full" : "h-[400px] md:h-[600px]"}`}
+            className={`w-full cursor-move touch-none ${isFullscreen ? "h-full" : "h-[300px] md:h-[400px]"}`}
             style={{ touchAction: "none" }}
           />
           {/* Label Flotante al pasar el mouse por la grafica */}
           <LabelFlotante pointer={pointer} camera={camera} FuncionObjetivo={FuncionObjetivo} />
 
           {/* Panel Lateral de Detalles del Vértice */}
-          <DetallesVertice verticeSelec={verticeSelec} setVerticeSelec={setVerticeSelec} solucion={solucion} />
+          {/* <DetallesVertice verticeSelec={verticeSelec} setVerticeSelec={setVerticeSelec} solucion={solucion} /> */}
           </div>
         </div>
       )}
-        
-      <AlertaTipoSolucion
-        solucion={solucion}
-        tipo_optimizacion={tipo_optimizacion}
-      />
 
-      {!solucion.es_infactible && (
+      {solucion.analysis.factible && (
         <TablaVertices
         solucion={solucion}
         onHover={setVerticeTablaHovered}

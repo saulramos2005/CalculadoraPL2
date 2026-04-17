@@ -1,5 +1,5 @@
-import { MethodResult } from "@/data/interfaces";
-import { SolveStatus, Method } from "@/data/types";
+// import { MethodResult } from "@/data/interfaces";
+import { SolveStatus } from "@/data/types";
 
 export function mapStatusToLabel(status: SolveStatus): string {
   const labels: Record<SolveStatus, string> = {
@@ -10,27 +10,6 @@ export function mapStatusToLabel(status: SolveStatus): string {
     error: "Error de entrada",
   };
   return labels[status];
-}
-
-export function createErrorResult(method: Method, message: string): MethodResult {
-  return {
-    method,
-    status: "error",
-    message,
-    objectiveValue: null,
-    solution: [],
-    iterations: [],
-    headers: [],
-    finalTableau: [],
-    analysis: {
-      tipoSolucion: mapStatusToLabel("error"),
-      degeneracion: false,
-      factible: false,
-      acotada: false,
-      observaciones: ["Revise el formato de coeficientes y operadores."],
-    },
-    generatedAt: new Date().toISOString(),
-  };
 }
 
 export function downloadFile(name: string, content: string, type: string): void {

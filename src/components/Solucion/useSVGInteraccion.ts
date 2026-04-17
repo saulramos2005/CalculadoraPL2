@@ -1,12 +1,12 @@
 import { useState, useRef, useEffect } from "react";
-import { MethodResult } from "@/data/interfaces";
+import { SolucionGrafica, Vertice } from "@/data/interfaces";
 
-export function useSVGInteraccion(svgRef: React.RefObject<SVGSVGElement | null>, axisLimit: number, activeResult: MethodResult) {
-  const [viewBox, setViewBox] = useState({ x: 0, y: 0, width: axisLimit * 2, height: axisLimit * 2 });
+export function useSVGInteraccion(svgRef: React.RefObject<SVGSVGElement | null>, axisLimit: number, activeResult: SolucionGrafica) {
+  const [viewBox, setViewBox] = useState({ x: -axisLimit, y: -axisLimit, width: axisLimit * 2, height: axisLimit * 2 });
   const [isDragging, setIsDragging] = useState(false);
   const [lastPos, setLastPos] = useState({ x: 0, y: 0 });
-  const [hoveredPoint, setHoveredPoint] = useState<{ x: number; y: number } | null>(null);
-  const [selectedVertex, setSelectedVertex] = useState<{ x: number; y: number } | null>(null);
+  const [hoveredPoint, setHoveredPoint] = useState<Vertice | null>(null);
+  const [selectedVertex, setSelectedVertex] = useState<Vertice | null>(null);
 
   const clickStartPos = useRef({ x: 0, y: 0 });
 
@@ -29,14 +29,13 @@ export function useSVGInteraccion(svgRef: React.RefObject<SVGSVGElement | null>,
     const worldY = viewBox.y + (rect.height - mouseY) * scaleY; // Invertir Y
 
     // Hover sobre puntos óptimos
-    if (activeResult.graphPoints) {
-      const hovered = activeResult.graphPoints.find(point => {
-        const dx = point.x - worldX;
-        const dy = point.y - worldY;
-        return Math.sqrt(dx * dx + dy * dy) < 0.5; // Tolerancia
-      });
-      setHoveredPoint(hovered || null);
-    }
+    const toleranceInWorld = (viewBox.width / rect.width) * 5; // Tolerancia de 5px en pantalla
+    const hovered = activeResult.Vertices.find(point => {
+      const dx = point.x - worldX;
+      const dy = point.y - worldY;
+      return Math.sqrt(dx * dx + dy * dy) < toleranceInWorld;
+    });
+    setHoveredPoint(hovered || null);
 
     if (!isDragging) return;
 
@@ -99,18 +98,17 @@ export function useSVGInteraccion(svgRef: React.RefObject<SVGSVGElement | null>,
     const worldX = viewBox.x + mouseX * scaleX;
     const worldY = viewBox.y + (rect.height - mouseY) * scaleY;
 
-    if (activeResult.graphPoints) {
-      const clicked = activeResult.graphPoints.find(point => {
-        const dx = point.x - worldX;
-        const dy = point.y - worldY;
-        return Math.sqrt(dx * dx + dy * dy) < 0.5;
-      });
-      setSelectedVertex(clicked || null);
-    }
+    const toleranceInWorld = (viewBox.width / rect.width) * 5; // Tolerancia de 5px
+    const clicked = activeResult.Vertices.find(point => {
+      const dx = point.x - worldX;
+      const dy = point.y - worldY;
+      return Math.sqrt(dx * dx + dy * dy) < toleranceInWorld;
+    });
+    setSelectedVertex(clicked || null);
   };
 
   const resetView = () => {
-    setViewBox({ x: 0, y: 0, width: axisLimit * 2, height: axisLimit * 2 });
+    setViewBox({ x: -axisLimit, y: -axisLimit, width: axisLimit * 2, height: axisLimit * 2 });
   };
 
   useEffect(() => {

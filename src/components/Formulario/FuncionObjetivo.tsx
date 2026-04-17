@@ -1,15 +1,16 @@
+import { ProblemaLineal } from "@/data/interfaces";
+
 interface FuncionObjetivoProps {
-  objective: string[];
-  variableCount: number;
+  problem: ProblemaLineal;
   updateObjectiveCoeff: (index: number, value: string) => void;
 }
 
-export default function FuncionObjetivo({ objective, variableCount, updateObjectiveCoeff }: FuncionObjetivoProps) {
+export default function FuncionObjetivo({ problem, updateObjectiveCoeff }: FuncionObjetivoProps) {
   return (
     <div className="space-y-2">
       <p className="text-sm text-slate-700 dark:text-slate-300">Función objetivo</p>
       <div className="flex flex-wrap items-center gap-2">
-        {objective.map((value, index) => (
+        {(problem.FuncionObjetivo || []).map((value, index) => (
           <div key={`obj-${index}`} className="flex items-center gap-2">
             <input
               value={value}
@@ -18,7 +19,7 @@ export default function FuncionObjetivo({ objective, variableCount, updateObject
               aria-label={`Coeficiente x${index + 1}`}
             />
             <span className="text-sm text-slate-800 dark:text-slate-200">x{index + 1}</span>
-            {index < variableCount - 1 && <span className="text-slate-500 dark:text-slate-400">+</span>}
+            {index < problem.numVariables - 1 && <span className="text-slate-500 dark:text-slate-400">+</span>}
           </div>
         ))}
       </div>

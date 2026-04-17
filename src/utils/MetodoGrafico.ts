@@ -80,9 +80,16 @@ export function resolverMetodoGrafico(
 
   if (verticesUnicos.length === 0) {
     return {
+      method: "grafico",
       RegionFactible: [], Vertices: [], VerticeOptimo: { x: 0, y: 0, valor: 0, es_fuga: false, label: ""}, ValorOptimo: 0,
       Lineas_de_restriccion: [], LineaObjetivo: [],
-      es_indefinida: false, es_infactible: true, es_degenerada: false, tipo_solucion: "Infactible"
+      analysis: {
+        observaciones: ["No se encontraron puntos factibles."],
+        acotada: true, 
+        factible: false, 
+        degeneracion: false, 
+        tipo_solucion: "Infactible"
+      }
     };
   }
 
@@ -127,16 +134,25 @@ export function resolverMetodoGrafico(
   });
 
   return {
+    method: "grafico",
+    variables: optimos.reduce((vars, v) => {
+      vars["x"] = v.x;
+      vars["y"] = v.y;
+      return vars;
+    }, {} as { [key: string]: number }),
     RegionFactible: VerticesOrdenados,
     Vertices: verticesEvaluados,
     VerticeOptimo: VerticeOptimo,
     ValorOptimo: VerticeOptimo.valor,
     Lineas_de_restriccion: LineasRestriccion,
     LineaObjetivo: generarLineaObjetivo(VerticeOptimo.valor, FuncionObjetivo, LIMITE_VISUAL),
-    es_indefinida: esIndefinida,
-    es_infactible: false,
-    es_degenerada: esDegenerada,
-    tipo_solucion: tipoSolucion
+    analysis: {
+      observaciones: esIndefinida ? ["La función objetivo es no acotada en la región factible."] : [],
+      acotada: !esIndefinida,
+      factible: true,
+      degeneracion: esDegenerada,
+      tipo_solucion: tipoSolucion
+    }
   } as SolucionGrafica;
 }
 

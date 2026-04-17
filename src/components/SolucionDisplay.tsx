@@ -1,11 +1,10 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { Method } from "@/data/types";
-import { ProblemInput, MethodResult } from "@/data/interfaces";
+import { ProblemaLineal, SolucionGrafica, SolucionSimplex } from "@/data/interfaces";
 
 import HeaderResultados from "./Solucion/Header";
 import ResumenSolucion from "./Solucion/Resumen";
-//import GraficaSolucion from "./Solucion/Grafica";
-import GraficaSolucion from "./grafica/Grafica2";
+import GraficaSolucion from "./grafica/Grafica";
 import TablaAnalisis from "./Solucion/TablaAnalisis";
 import TablaIteraciones from "./Solucion/TablaIteraciones";
 import ObservacionesSolucion from "./Solucion/Observaciones";
@@ -13,8 +12,8 @@ import EstadoVacio from "./Solucion/EstadoVacio";
 
 interface SolucionDisplayProps {
   method: Method;
-  activeResult: MethodResult | null;
-  problem: ProblemInput;
+  activeResult: SolucionGrafica | SolucionSimplex | null;
+  problem: ProblemaLineal;
 }
 
 export function SolucionDisplay({ method, activeResult, problem }: SolucionDisplayProps) {
@@ -32,7 +31,7 @@ export function SolucionDisplay({ method, activeResult, problem }: SolucionDispl
       <AnimatePresence mode="wait">
         {activeResult ? (
           <motion.div
-            key={activeResult.generatedAt + method}
+            key={method + (activeResult.ValorOptimo || 0)}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
@@ -41,11 +40,11 @@ export function SolucionDisplay({ method, activeResult, problem }: SolucionDispl
           >
             <ResumenSolucion activeResult={activeResult} />
 
-            {method === "grafico" && activeResult.graficaResult && (
+            {method === "grafico" && activeResult && (
               <GraficaSolucion
-                solucion={activeResult.graficaResult}
-                FuncionObjetivo={activeResult.FuncionObjetivo || []}
-                tipo_optimizacion={activeResult.tipo_optimizacion || "max"}
+                solucion={activeResult as SolucionGrafica}
+                FuncionObjetivo={problem.FuncionObjetivo}
+                tipo_optimizacion={problem.tipo_optimizacion}
               />
             )}
 

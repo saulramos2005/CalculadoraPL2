@@ -1,12 +1,12 @@
 import { Method } from "@/data/types";
-import { ProblemInput, MethodResult } from "@/data/interfaces";
+import { ProblemaLineal, MethodResult } from "@/data/interfaces";
 import { methodLabels } from "@/data/constants";
 import { downloadFile } from "@/utiles/resultados";
 
 interface HeaderResultadosProps {
   method: Method;
   activeResult: MethodResult | null;
-  problem: ProblemInput;
+  problem: ProblemaLineal;
 }
 
 export default function HeaderResultados({ method, activeResult, problem }: HeaderResultadosProps) {
@@ -20,28 +20,31 @@ export default function HeaderResultados({ method, activeResult, problem }: Head
   };
 
   const exportIterationsCsv = () => {
-    if (!activeResult || activeResult.iterations.length === 0) return;
-    const csv: string[] = [];
-    activeResult.iterations.forEach((iteration) => {
-      csv.push(`Iteracion ${iteration.iteration};${iteration.pivot}`);
-      csv.push(["Fila", ...iteration.headers, "RHS"].join(";"));
-      iteration.tableau.forEach((row, index) => {
-        csv.push([index === 0 ? "Z" : `R${index}`, ...row.map((value) => value.toString())].join(";"));
+    if (!activeResult || !("tablas" in activeResult)) return;
+
+    const csvRows: string[] = [];
+    activeResult.tablas.forEach((tabla) => {
+      csvRows.push(`Iteracion ${tabla.iteracion}`);
+      csvRows.push(["Base", ...tabla.encabezados].join(";"));
+      tabla.matriz.forEach((row, rowIndex) => {
+        const isZRow = rowIndex === tabla.matriz.length - 1;
+        const rowLabel = isZRow ? "Z" : tabla.basicas[rowIndex] || "";
+        csvRows.push([rowLabel, ...row.map((value) => value.toString())].join(";"));
       });
-      csv.push("");
+      csvRows.push(""); // Separador
     });
-    downloadFile(`iteraciones-${activeResult.method}.csv`, csv.join("\n"), "text/csv;charset=utf-8");
+    downloadFile(`iteraciones-${activeResult.method}.csv`, csvRows.join("\n"), "text/csv;charset=utf-8");
   };
 
   const exportGraph = () => {
-    if (method !== "grafico") return;
-    const svg = document.getElementById("grafico-lp");
+    if (!activeResult || !("RegionFactible" in activeResult)) return;
+    const svg = document.querySelector("#grafico-lp svg");
     if (!svg) return;
     downloadFile("grafica-lp.svg", svg.outerHTML, "image/svg+xml;charset=utf-8");
   };
 
   return (
-      <div className="flex flex-wrap items-center justify-between gap-2">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-2 dark:border-slate-800">
         <h2 className="text-lg font-medium">Resultado: {methodLabels[method]}</h2>
         <div className="flex gap-2">
           <button
@@ -55,7 +58,7 @@ export default function HeaderResultados({ method, activeResult, problem }: Head
           <button
             type="button"
             onClick={exportIterationsCsv}
-            disabled={!activeResult || activeResult.iterations.length === 0}
+            disabled={!activeResult || !("tablas" in activeResult)}
             className="rounded-md border border-slate-300 bg-cyan-50 px-3 py-1.5 text-xs text-slate-700 transition hover:border-cyan-600 disabled:opacity-60 dark:border-slate-600 dark:bg-cyan-600/20 dark:text-slate-100 dark:hover:border-cyan-400"
           >
             Exportar tabla
@@ -63,7 +66,7 @@ export default function HeaderResultados({ method, activeResult, problem }: Head
           <button
             type="button"
             onClick={exportGraph}
-            disabled={method !== "grafico" || !activeResult?.feasibleRegion}
+            disabled={!activeResult || !("RegionFactible" in activeResult)}
             className="rounded-md border border-slate-300 bg-cyan-50 px-3 py-1.5 text-xs text-slate-700 transition hover:border-cyan-600 disabled:opacity-60 dark:border-slate-600 dark:bg-cyan-600/20 dark:text-slate-100 dark:hover:border-cyan-400"
           >
             Exportar gráfica

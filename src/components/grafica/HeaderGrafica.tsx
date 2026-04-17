@@ -25,16 +25,16 @@ export function HeaderGrafica({ onReset, onCenterOptimum, onZoomIn, onZoomOut, z
 
   return (
     <div className="flex justify-between gap-3">
-      <div className="flex items-center gap-2 flex-wrap">
+      <div className="flex items-center gap-2">
         <button
           onClick={onReset}
-          className="flex items-center gap-1 px-3 py-1 bg-gray-200 text-gray-700 rounded-md text-sm hover:bg-gray-300 transition-colors"
+          className="flex items-center gap-1 px-2 py-1 bg-gray-200 text-gray-700 rounded-md text-sm hover:bg-gray-300 transition-colors"
         >
           <RotateCcw className="w-4 h-4" /> {window.innerWidth > 768 ? "Reiniciar Vista" : "Reiniciar"}
         </button>
         <button
           onClick={onCenterOptimum}
-          className="flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-700 rounded-md text-sm hover:bg-blue-200 transition-colors"
+          className="flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-700 rounded-md text-sm hover:bg-blue-200 transition-colors"
         >
           <Target className="w-4 h-4" /> {window.innerWidth > 768 ? "Centrar Óptimo" : "Óptimo"}
         </button>

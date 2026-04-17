@@ -101,11 +101,15 @@ export function resolverMetodoDosFases(
 
   if (valorZ1 > EPSILON) {
     return {
+      method: "dosFases",
       ValorOptimo: 0,
-      es_infactible: true,
-      es_indefinida: false,
-      es_degenerada: false,
-      tipo_solucion: "Infactible",
+      analysis: {
+        observaciones: ["La función objetivo es no acotada en la región factible."],
+        acotada: false,
+        factible: false,
+        degeneracion: false,
+        tipo_solucion: "Infactible"
+      },
       variables: {},
       tablas: todasLasTablas,
     };
@@ -191,10 +195,14 @@ export function resolverMetodoDosFases(
   return {
     ValorOptimo: Number(valorOptimo.toFixed(10)),
     variables,
-    es_infactible: false,
-    es_indefinida: resFase2.es_indefinida,
-    es_degenerada: esDegenerada,
-    tipo_solucion: tieneSolucionesMultiples ? "Multiple" : "Unica",
+    method: "dosFases",
+    analysis: {
+      observaciones: [],
+      acotada: true,
+      factible: true,
+      degeneracion: esDegenerada,
+      tipo_solucion: tieneSolucionesMultiples ? "Multiple" : "Unica"
+    },
     tablas: todasLasTablas,
   };
 }

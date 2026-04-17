@@ -53,13 +53,17 @@ export function resolverMetodoSimplex(
 
   if (resultado.es_indefinida) {
     return {
+      method: "simplex",
       tablas,
       ValorOptimo: 0,
       variables: {},
-      es_indefinida: true,
-      es_infactible: false,
-      es_degenerada: false,
-      tipo_solucion: "Infactible",
+      analysis: {
+        observaciones: ["La función objetivo es no acotada en la región factible."],
+        acotada: false,
+        factible: false,
+        degeneracion: false,
+        tipo_solucion: "Infactible"
+      }
     };
   }
 
@@ -99,12 +103,16 @@ export function resolverMetodoSimplex(
   }
 
   return {
+    method: "simplex",
     tablas,
     ValorOptimo: optimalValue,
     variables,
-    es_indefinida: false,
-    es_infactible: false,
-    es_degenerada: esDegenerada,
-    tipo_solucion: tieneSolucionesMultiples ? "Multiple" : "Unica",
+    analysis: {
+      observaciones: [],
+      acotada: true,
+      factible: true,
+      degeneracion: esDegenerada,
+      tipo_solucion: tieneSolucionesMultiples ? "Multiple" : "Unica"
+    }
   };
 }

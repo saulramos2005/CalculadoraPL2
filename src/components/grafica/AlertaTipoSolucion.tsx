@@ -1,12 +1,11 @@
 import { Solucion } from "@/data/interfaces";
-import { div } from "framer-motion/client";
 import { AlertTriangle, AlertCircle } from "lucide-react";
 interface props {
   solucion: Solucion;
   tipo_optimizacion: "max" | "min";
 }
 
-const estilos: Record<Solucion["tipo_solucion"], any> = {
+const estilos: Record<Solucion["analysis"]["tipo_solucion"], any> = {
   Unica: {
     text_color: "text-green-900",
     bg_color: "bg-green-50 border border-green-200",
@@ -43,7 +42,7 @@ const estilos: Record<Solucion["tipo_solucion"], any> = {
       "Los datos de la tabla no deben tomarse como valores máximos o mínimos ya que la función puede crecer o decrecer indefinidamente. El sistema marcará como óptimo el mejor valor obtenido dentro de sus limites.",
   },
 };
-const iconos: Record<Solucion["tipo_solucion"], any> = {
+const iconos: Record<Solucion["analysis"]["tipo_solucion"], any> = {
   Unica: {
     icono: AlertCircle,
     color: "text-green-600",
@@ -68,10 +67,9 @@ const iconos: Record<Solucion["tipo_solucion"], any> = {
 
 export default function AlertaTipoSolucion({
   solucion,
-  tipo_optimizacion,
 }: props) {
-  const estilo = estilos[solucion.tipo_solucion];
-  const configIcono = iconos[solucion.tipo_solucion];
+  const estilo = estilos[solucion.analysis.tipo_solucion];
+  const configIcono = iconos[solucion.analysis.tipo_solucion];
   const Icono = configIcono.icono;
 
   return (

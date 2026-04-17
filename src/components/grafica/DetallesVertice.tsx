@@ -1,4 +1,4 @@
-import { SolucionGrafica } from "@/types";
+import { SolucionGrafica } from "@/data/interfaces";
 
 interface props {
     verticeSelec: any;

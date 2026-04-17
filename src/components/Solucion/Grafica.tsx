@@ -1,9 +1,9 @@
-import { MethodResult } from "@/data/interfaces";
+import { SolucionGrafica } from "@/data/interfaces";
 import { formatNumber } from "@/utiles/numeros";
 import { useSVGInteraccion } from "./useSVGInteraccion";
 import { useRef } from "react";
 
-export default function GraficaSolucion({ activeResult, axisLimit }: { activeResult: MethodResult; axisLimit: number }) {
+export default function GraficaSolucion({ activeResult, axisLimit }: { activeResult: SolucionGrafica; axisLimit: number }) {
   const svgRef = useRef<SVGSVGElement>(null);
   const {
     viewBox,
@@ -17,7 +17,7 @@ export default function GraficaSolucion({ activeResult, axisLimit }: { activeRes
     resetView,
   } = useSVGInteraccion(svgRef, axisLimit, activeResult);
 
-  if (!activeResult.feasibleRegion || activeResult.feasibleRegion.length === 0) return null;
+  if (!activeResult.RegionFactible || activeResult.RegionFactible.length === 0) return null;
 
   return (
     <div className="rounded-lg border border-slate-200 p-3 transition-colors duration-300 dark:border-slate-800 relative">
@@ -90,7 +90,7 @@ export default function GraficaSolucion({ activeResult, axisLimit }: { activeRes
 
         {/* Feasible region */}
         <polygon
-          points={activeResult.feasibleRegion
+          points={activeResult.RegionFactible
             .map((point) => `${point.x},${point.y}`)
             .join(" ")}
           fill="rgba(34,211,238,0.25)"
@@ -99,7 +99,9 @@ export default function GraficaSolucion({ activeResult, axisLimit }: { activeRes
         />
 
         {/* Optimal points */}
-        {activeResult.graphPoints?.map((point, idx) => (
+        {activeResult.Vertices.filter(
+          (v) => Math.abs(v.valor - activeResult.ValorOptimo) < 1e-6,
+        ).map((point, idx) => (
           <g key={`best-${idx}`}>
             <circle
               cx={point.x}
@@ -163,7 +165,7 @@ export default function GraficaSolucion({ activeResult, axisLimit }: { activeRes
               <h4 className="text-sm font-semibold text-gray-700 mb-2">Función Objetivo</h4>
               <div className="bg-green-50 p-3 rounded border border-green-200">
                 <p className="font-mono font-medium text-green-900">
-                  {formatNumber(activeResult.objectiveValue || 0)}
+                  {formatNumber(selectedVertex.x || 0)}
                 </p>
               </div>
             </div>

@@ -4,9 +4,9 @@ import { MethodResult } from "@/data/interfaces";
 export default function TablaAnalisis({ activeResult }: { activeResult: MethodResult }) {
   const analysisRows = useMemo(() => {
     return [
-      ["Tipo de solución", activeResult.analysis.tipoSolucion],
+      ["Tipo de solución", activeResult.analysis.tipo_solucion],
       ["Factibilidad", activeResult.analysis.factible ? "Factible" : "Infactible"],
-      ["Acotamiento", activeResult.analysis.acotada ? "Acotada" : "No acotada"],
+      ["Acotamiento", activeResult.analysis.acotada ? "Sí" : "No"],
       ["Degeneración", activeResult.analysis.degeneracion ? "Sí" : "No"],
     ];
   }, [activeResult]);

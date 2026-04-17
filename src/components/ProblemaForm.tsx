@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Method } from "../data/types";
-import { ProblemInput } from "../data/interfaces";
+import { ProblemaLineal } from "../data/interfaces";
 
 import ConfiguracionModelo from "./Formulario/ConfiguracionModelo";
 import FuncionObjetivo from "./Formulario/FuncionObjetivo";
@@ -9,8 +9,8 @@ import MetodoResolucion from "./Formulario/MetodoResolucion";
 import EstadoSistema from "./Formulario/EstadoSistema";
 
 interface ProblemFormProps {
-  problem: ProblemInput;
-  setProblem: React.Dispatch<React.SetStateAction<ProblemInput>>;
+  problem: ProblemaLineal;
+  setProblem: React.Dispatch<React.SetStateAction<ProblemaLineal>>;
   method: Method;
   setMethod: (method: Method) => void;
   solveProblem: () => void;
@@ -27,42 +27,42 @@ export function ProblemForm({
 }: ProblemFormProps) {
   const updateObjectiveCoeff = (index: number, value: string) => {
     setProblem((prev) => {
-      const objective = [...prev.objective];
-      objective[index] = value;
-      return { ...prev, objective };
+      const FuncionObjetivo = [...prev.FuncionObjetivo];
+      FuncionObjetivo[index] = value as unknown as number;
+      return { ...prev, FuncionObjetivo };
     });
   };
 
   const updateConstraintCoeff = (row: number, col: number, value: string) => {
     setProblem((prev) => {
-      const constraints = prev.constraints.map((restriction, index) => {
+      const desigualdades = prev.desigualdades.map((restriction, index) => {
         if (index !== row) return restriction;
-        const coeffs = [...restriction.coeffs];
-        coeffs[col] = value;
-        return { ...restriction, coeffs };
+        const coeficientes = [...restriction.coeficientes];
+        coeficientes[col] = value as unknown as number;
+        return { ...restriction, coeficientes };
       });
-      return { ...prev, constraints };
+      return { ...prev, desigualdades };
     });
   };
 
   const setVariableCount = (value: number) => {
     setProblem((prev) => {
       const safe = Math.max(2, Math.min(6, value));
-      const objective = Array.from({ length: safe }, (_, i) => prev.objective[i] ?? "0");
-      const constraints = prev.constraints.map((restriction) => ({
+      const FuncionObjetivo = Array.from({ length: safe }, (_, i) => prev.FuncionObjetivo[i] ?? 0);
+      const desigualdades = prev.desigualdades.map((restriction) => ({
         ...restriction,
-        coeffs: Array.from({ length: safe }, (_, i) => restriction.coeffs[i] ?? "0"),
+        coeficientes: Array.from({ length: safe }, (_, i) => restriction.coeficientes[i] ?? 0),
       }));
-      return { ...prev, variableCount: safe, objective, constraints };
+      return { ...prev, numVariables: safe, FuncionObjetivo, desigualdades };
     });
   };
 
   const addConstraint = () => {
     setProblem((prev) => ({
       ...prev,
-      constraints: [
-        ...prev.constraints,
-        { coeffs: Array(prev.variableCount).fill("0"), operator: "<=", rhs: "0" },
+      desigualdades: [
+        ...prev.desigualdades,
+        { id: `R${prev.desigualdades.length + 1}`, coeficientes: Array(prev.numVariables).fill(0), operador: "<=", rhs: 0 },
       ],
     }));
   };
@@ -70,20 +70,21 @@ export function ProblemForm({
   const removeConstraint = (index: number) => {
     setProblem((prev) => ({
       ...prev,
-      constraints: prev.constraints.filter((_, idx) => idx !== index),
+      desigualdades: prev.desigualdades.filter((_, idx) => idx !== index),
     }));
   };
 
   const duplicateConstraint = (index: number) => {
     setProblem((prev) => {
-      const constraints = [...prev.constraints];
-      const toCopy = constraints[index];
+      const desigualdades = [...prev.desigualdades];
+      const toCopy = desigualdades[index];
       // Insertamos una copia profunda de la restricción justo debajo de la actual
-      constraints.splice(index + 1, 0, {
+      desigualdades.splice(index + 1, 0, {
         ...toCopy,
-        coeffs: [...toCopy.coeffs],
+        id: `R${desigualdades.length + 1}`,
+        coeficientes: [...toCopy.coeficientes],
       });
-      return { ...prev, constraints };
+      return { ...prev, desigualdades };
     });
   };
 
@@ -103,15 +104,14 @@ export function ProblemForm({
         <h2 className="text-lg font-medium">Modelo del problema</h2>
 
       <ConfiguracionModelo
-        variableCount={problem.variableCount}
+        variableCount={problem.numVariables}
         setVariableCount={setVariableCount}
-        optimize={problem.optimize}
-        setOptimize={(val) => setProblem((prev) => ({ ...prev, optimize: val }))}
+        optimize={problem.tipo_optimizacion}
+        setOptimize={(val) => setProblem((prev) => ({ ...prev, tipo_optimizacion: val }))}
       />
 
       <FuncionObjetivo
-        objective={problem.objective}
-        variableCount={problem.variableCount}
+        problem={problem}
         updateObjectiveCoeff={updateObjectiveCoeff}
       />
 

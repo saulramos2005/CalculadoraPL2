@@ -1,10 +1,9 @@
 import { Plus, Copy, Trash } from "lucide-react";
-import { Operator } from "@/data/types";
-import { ProblemInput } from "@/data/interfaces";
+import { ProblemaLineal, Desigualdad } from "@/data/interfaces";
 
 interface RestriccionesProps {
-  problem: ProblemInput;
-  setProblem: React.Dispatch<React.SetStateAction<ProblemInput>>;
+  problem: ProblemaLineal;
+  setProblem: React.Dispatch<React.SetStateAction<ProblemaLineal>>;
   updateConstraintCoeff: (row: number, col: number, value: string) => void;
   addConstraint: () => void;
   removeConstraint: (index: number) => void;
@@ -28,10 +27,10 @@ export default function Restricciones({ problem, setProblem, updateConstraintCoe
         </button>
       </div>
       <div>
-        {problem.constraints.map((restriction, rowIndex) => (
+        {problem.desigualdades.map((restriction, rowIndex) => (
           <div key={`res-${rowIndex}`} className="space-y-2 rounded-lg border border-slate-200 p-3 transition-colors duration-300 dark:border-slate-800">
             <div className="flex flex-wrap items-center gap-2">
-              {restriction.coeffs.map((value, colIndex) => (
+              {restriction.coeficientes.map((value, colIndex) => (
                 <div key={`coef-${rowIndex}-${colIndex}`} className="flex items-center gap-1">
                   <input
                     value={value}
@@ -39,16 +38,16 @@ export default function Restricciones({ problem, setProblem, updateConstraintCoe
                     className="w-16 rounded-md border border-slate-300 bg-slate-50 px-2 py-1 text-sm outline-none transition focus:border-cyan-500 dark:border-slate-700 dark:bg-slate-950 dark:focus:border-cyan-400"
                   />
                   <span className="text-sm">x{colIndex + 1}</span>
-                  {colIndex < problem.variableCount - 1 && <span className="text-slate-500 dark:text-slate-400">+</span>}
+                  {colIndex < problem.numVariables - 1 && <span className="text-slate-500 dark:text-slate-400">+</span>}
                 </div>
               ))}
               <select
-                value={restriction.operator}
+                value={restriction.operador}
                 onChange={(event) =>
                   setProblem((prev) => ({
                     ...prev,
-                    constraints: prev.constraints.map((item, idx) =>
-                      idx === rowIndex ? { ...item, operator: event.target.value as Operator } : item,
+                    desigualdades: prev.desigualdades.map((item, idx) =>
+                      idx === rowIndex ? { ...item, operador: event.target.value as Desigualdad["operador"] } : item,
                     ),
                   }))
                 }
@@ -63,8 +62,8 @@ export default function Restricciones({ problem, setProblem, updateConstraintCoe
                 onChange={(event) =>
                   setProblem((prev) => ({
                     ...prev,
-                    constraints: prev.constraints.map((item, idx) =>
-                      idx === rowIndex ? { ...item, rhs: event.target.value } : item,
+                    desigualdades: prev.desigualdades.map((item, idx) =>
+                      idx === rowIndex ? { ...item, rhs: event.target.value as unknown as number } : item,
                     ),
                   }))
                 }
@@ -82,7 +81,7 @@ export default function Restricciones({ problem, setProblem, updateConstraintCoe
               <button
                 type="button"
                 onClick={() => removeConstraint(rowIndex)}
-                disabled={problem.constraints.length <= 1}
+                disabled={problem.desigualdades.length <= 1}
                 className="px-2 py-1 text-xs text-rose-600 transition hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-40 dark:text-rose-400 dark:hover:bg-rose-600/10"
               >
                 <Trash size={16} />
