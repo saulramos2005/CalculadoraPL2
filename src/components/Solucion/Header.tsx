@@ -1,15 +1,24 @@
 import { Method } from "@/data/types";
 import { ProblemaLineal, MethodResult } from "@/data/interfaces";
-import { methodLabels } from "@/data/constants";
 import { downloadFile } from "@/utiles/resultados";
-
+import { FileJson, Table, LineChart } from "lucide-react";
+import { baseButtonClass, tooltipClass } from "@/data/styles";
 interface HeaderResultadosProps {
   method: Method;
   activeResult: MethodResult | null;
   problem: ProblemaLineal;
+  activeTab: string;
 }
 
-export default function HeaderResultados({ method, activeResult, problem }: HeaderResultadosProps) {
+const classname = `${baseButtonClass} disabled:cursor-not-allowed`;
+
+const tabTitles: Record<string, string> = {
+  visual: "Visualización",
+  analitico: "Resumen analítico",
+  sensibilidad: "Análisis de sensibilidad"
+};
+
+export default function HeaderResultados({ method, activeResult, problem, activeTab }: HeaderResultadosProps) {
   const exportCurrentResult = () => {
     if (!activeResult) return;
     downloadFile(
@@ -44,32 +53,44 @@ export default function HeaderResultados({ method, activeResult, problem }: Head
   };
 
   return (
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-2 dark:border-slate-800">
-        <h2 className="text-lg font-medium">Resultado: {methodLabels[method]}</h2>
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-medium">{tabTitles[activeTab] || "Resultados"}</h2>
         <div className="flex gap-2">
           <button
             type="button"
             onClick={exportCurrentResult}
             disabled={!activeResult}
-            className="rounded-md border border-slate-300 bg-cyan-50 px-3 py-1.5 text-xs text-slate-700 transition hover:border-cyan-600 disabled:opacity-60 dark:border-slate-600 dark:bg-cyan-600/20 dark:text-slate-100 dark:hover:border-cyan-400"
+            className={classname}
+            aria-label="Exportar JSON"
           >
-            Exportar JSON
+            <FileJson size={18} />
+            <span className={tooltipClass}>
+              Exportar JSON
+            </span>
           </button>
           <button
             type="button"
             onClick={exportIterationsCsv}
             disabled={!activeResult || !("tablas" in activeResult)}
-            className="rounded-md border border-slate-300 bg-cyan-50 px-3 py-1.5 text-xs text-slate-700 transition hover:border-cyan-600 disabled:opacity-60 dark:border-slate-600 dark:bg-cyan-600/20 dark:text-slate-100 dark:hover:border-cyan-400"
+            className={classname}
+            aria-label="Exportar tabla CSV"
           >
-            Exportar tabla
+            <Table size={18} />
+            <span className={tooltipClass}>
+              Exportar tabla CSV
+            </span>
           </button>
           <button
             type="button"
             onClick={exportGraph}
             disabled={!activeResult || !("RegionFactible" in activeResult)}
-            className="rounded-md border border-slate-300 bg-cyan-50 px-3 py-1.5 text-xs text-slate-700 transition hover:border-cyan-600 disabled:opacity-60 dark:border-slate-600 dark:bg-cyan-600/20 dark:text-slate-100 dark:hover:border-cyan-400"
+            className={classname}
+            aria-label="Exportar gráfica SVG"
           >
-            Exportar gráfica
+            <LineChart size={18} />
+            <span className={tooltipClass}>
+              Exportar gráfica SVG
+            </span>
           </button>
         </div>
       </div>

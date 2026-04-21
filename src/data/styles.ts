@@ -1,0 +1,7 @@
+export const baseButtonClass = "group relative flex items-center justify-center rounded-md border border-slate-300 bg-cyan-50 p-1.5 text-slate-700 transition hover:border-cyan-600 hover:bg-cyan-100 disabled:opacity-50 dark:border-slate-600 dark:bg-cyan-600/20 dark:text-slate-100 dark:hover:border-cyan-400 dark:hover:bg-cyan-900/40";
+export const tooltipClass = "pointer-events-none absolute bottom-full left-1/2 z-50 mb-2 -translate-x-1/2 whitespace-nowrap rounded bg-slate-800 px-2 py-1 text-xs text-white opacity-0 transition-opacity group-hover:opacity-100 dark:bg-slate-200 dark:text-slate-900";
+export const baseBadgeClass = "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ring-1 ring-inset";
+export const tabBaseClass = "group relative flex items-center justify-center rounded-t-lg border p-2 transition-colors";
+export const tabActiveClass = "border-slate-200 border-b-white bg-white text-cyan-600 dark:border-slate-800 dark:border-b-slate-950 dark:bg-slate-950 dark:text-cyan-300";
+export const tabInactiveClass = "border-transparent text-slate-500 hover:bg-white/50 hover:text-slate-700 dark:text-slate-400 dark:hover:bg-slate-950/50 dark:hover:text-slate-200";
+export const tabDisabledClass = "border-transparent cursor-not-allowed text-slate-400 dark:text-slate-600";

@@ -1,4 +1,6 @@
+import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { Eye, FileText, Wrench } from "lucide-react";
 import { Method } from "@/data/types";
 import { ProblemaLineal, SolucionGrafica, SolucionSimplex } from "@/data/interfaces";
 
@@ -9,6 +11,16 @@ import TablaAnalisis from "./Solucion/TablaAnalisis";
 import TablaIteraciones from "./Solucion/TablaIteraciones";
 import ObservacionesSolucion from "./Solucion/Observaciones";
 import EstadoVacio from "./Solucion/EstadoVacio";
+import { TablaVertices } from "./grafica/TablaVertices";
+
+import { 
+  tooltipClass,
+  tabBaseClass,
+  tabActiveClass,
+  tabInactiveClass,
+  tabDisabledClass,
+
+} from "@/data/styles";
 
 interface SolucionDisplayProps {
   method: Method;
@@ -16,48 +28,96 @@ interface SolucionDisplayProps {
   problem: ProblemaLineal;
 }
 
-export function SolucionDisplay({ method, activeResult, problem }: SolucionDisplayProps) {
+type Tab = "visual" | "analitico" | "sensibilidad";
 
+export function SolucionDisplay({ method, activeResult, problem }: SolucionDisplayProps) {
+  const [activeTab, setActiveTab] = useState<Tab>("visual");
 
   return (
     <motion.section
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.4, delay: 0.2 }}
-      className="space-y-4 rounded-xl border border-slate-200 bg-white/60 p-4 transition-colors duration-300 sm:p-5 dark:border-slate-800 dark:bg-slate-900/60"
+      className="flex flex-col"
     >
-      <HeaderResultados method={method} activeResult={activeResult} problem={problem} />
+        <div className="relative z-10 -mb-px flex gap-1 pl-4" aria-label="Tabs">
+          <button
+            onClick={() => setActiveTab("visual")}
+            className={`${tabBaseClass} ${activeTab === 'visual' ? tabActiveClass : tabInactiveClass}`}
+            aria-label="Representación Visual"
+          >
+            <Eye size={18} />
+            <span className={tooltipClass}>Representación Visual</span>
+          </button>
+          <button
+            onClick={() => setActiveTab("analitico")}
+            className={`${tabBaseClass} ${activeTab === 'analitico' ? tabActiveClass : tabInactiveClass}`}
+            aria-label="Resumen Analítico"
+          >
+            <FileText size={18} />
+            <span className={tooltipClass}>Resumen Analítico</span>
+          </button>
+          <button
+            disabled
+            className={`${tabBaseClass} ${tabDisabledClass}`}
+            aria-label="Análisis de Sensibilidad (Próximamente)"
+          >
+            <Wrench size={18} />
+            <span className={tooltipClass}>Sensibilidad (Próximamente)</span>
+          </button>
+        </div>
+
+      <div className="relative z-0 space-y-3 rounded-xl border border-slate-200 bg-white p-3 shadow-sm transition-colors duration-300 dark:border-slate-800 dark:bg-slate-950">
+        <HeaderResultados method={method} activeResult={activeResult} problem={problem} activeTab={activeTab} />
 
       <AnimatePresence mode="wait">
-        {activeResult ? (
+        {!activeResult ? (
+          <EstadoVacio />
+        ) : (
           <motion.div
-            key={method + (activeResult.ValorOptimo || 0)}
+            key="results"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.25 }}
-            className="space-y-4"
+            transition={{ duration: 0.2 }}
+            className="pt-2"
           >
-            <ResumenSolucion activeResult={activeResult} />
+            <div className={`space-y-4 ${activeTab === 'visual' ? 'block' : 'hidden'}`}>
+              {method === "grafico" ? (
+                <GraficaSolucion
+                  solucion={activeResult as SolucionGrafica}
+                  FuncionObjetivo={problem.FuncionObjetivo}
+                  tipo_optimizacion={problem.tipo_optimizacion}
+                />
+              ) : (
+                <TablaIteraciones activeResult={activeResult} problem={problem} />
+              )}
+            </div>
 
-            {method === "grafico" && activeResult && (
-              <GraficaSolucion
-                solucion={activeResult as SolucionGrafica}
-                FuncionObjetivo={problem.FuncionObjetivo}
-                tipo_optimizacion={problem.tipo_optimizacion}
-              />
-            )}
+            <div className={`space-y-4 ${activeTab === 'analitico' ? 'block' : 'hidden'}`}>
+              {method === "grafico" ? (
+                <>
+                  <ResumenSolucion activeResult={activeResult} />
+                  {activeResult.analysis.factible && (
+                    <TablaVertices solucion={activeResult as SolucionGrafica} />
+                  )}
+                </>
+              ) : (
+                <TablaAnalisis activeResult={activeResult} />
+              )}
+              <ObservacionesSolucion activeResult={activeResult} />
+            </div>
 
-            {/* <TablaAnalisis activeResult={activeResult} /> */}
-
-            <TablaIteraciones activeResult={activeResult} problem={problem} />
-
-            <ObservacionesSolucion activeResult={activeResult} />
+            <div className={activeTab === 'sensibilidad' ? 'block' : 'hidden'}>
+              <div className="rounded-lg border border-dashed border-slate-300 p-4 text-center text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400">
+                <p className="font-semibold">En construcción</p>
+                <p>Esta sección permitirá realizar análisis de sensibilidad sobre los resultados obtenidos.</p>
+              </div>
+            </div>
           </motion.div>
-        ) : (
-          <EstadoVacio />
         )}
       </AnimatePresence>
+      </div>
     </motion.section>
   );
 }

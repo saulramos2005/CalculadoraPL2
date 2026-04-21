@@ -2,6 +2,7 @@ import { SolucionGrafica } from "@/data/interfaces";
 import { formatNumber } from "@/utiles/numeros";
 import { useSVGInteraccion } from "./useSVGInteraccion";
 import { useRef } from "react";
+import { X } from "lucide-react";
 
 export default function GraficaSolucion({ activeResult, axisLimit }: { activeResult: SolucionGrafica; axisLimit: number }) {
   const svgRef = useRef<SVGSVGElement>(null);
@@ -14,22 +15,12 @@ export default function GraficaSolucion({ activeResult, axisLimit }: { activeRes
     handleMouseMove,
     handleMouseUp,
     handleClick,
-    resetView,
   } = useSVGInteraccion(svgRef, axisLimit, activeResult);
 
   if (!activeResult.RegionFactible || activeResult.RegionFactible.length === 0) return null;
 
   return (
     <div className="rounded-lg border border-slate-200 p-3 transition-colors duration-300 dark:border-slate-800 relative">
-      <div className="flex justify-between items-center mb-2">
-        <h3 className="text-sm font-semibold">Gráfica Interactiva</h3>
-        <button
-          onClick={resetView}
-          className="text-xs px-2 py-1 bg-slate-100 hover:bg-slate-200 rounded transition-colors"
-        >
-          Reset View
-        </button>
-      </div>
       <svg
         ref={svgRef}
         viewBox={`${viewBox.x} ${viewBox.y} ${viewBox.width} ${viewBox.height}`}
@@ -137,35 +128,39 @@ export default function GraficaSolucion({ activeResult, axisLimit }: { activeRes
 
       {/* Details panel */}
       {selectedVertex && (
-        <div className="absolute top-0 right-0 h-full w-48 bg-white/95 backdrop-blur-sm shadow-xl border-l border-gray-200 p-4 overflow-y-auto z-20">
+        <div className="absolute top-0 right-0 z-20 h-full w-48 overflow-y-auto border-l border-cyan-200 bg-white/95 p-4 shadow-xl backdrop-blur-sm transition-colors dark:border-cyan-900/50 dark:bg-slate-950/95">
           <div className="flex justify-between items-start mb-4">
-            <h3 className="font-bold text-gray-800 text-lg">Detalles del Punto</h3>
+            <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">Detalles del Punto</h3>
             <button
               onClick={() => setSelectedVertex(null)}
-              className="text-gray-400 hover:text-gray-600 rounded-full p-1"
+              className="group relative flex items-center justify-center rounded-md p-1.5 text-slate-500 transition hover:bg-cyan-50 hover:text-cyan-700 dark:text-slate-400 dark:hover:bg-cyan-900/40 dark:hover:text-cyan-200"
+              aria-label="Cerrar detalles"
             >
-              ✕
+              <X size={16} />
+              <span className="pointer-events-none absolute bottom-full right-0 z-50 mb-2 whitespace-nowrap rounded bg-slate-800 px-2 py-1 text-xs text-white opacity-0 transition-opacity group-hover:opacity-100 dark:bg-slate-200 dark:text-slate-900">
+                Cerrar
+              </span>
             </button>
           </div>
           <div className="space-y-4">
             <div>
-              <h4 className="text-sm font-semibold text-gray-700 mb-2">Coordenadas</h4>
+              <h4 className="mb-2 text-sm font-semibold text-slate-700 dark:text-slate-300">Coordenadas</h4>
               <div className="grid grid-cols-2 gap-2">
-                <div className="bg-gray-50 p-2 rounded">
-                  <span className="text-xs text-gray-500">x₁</span>
-                  <p className="font-mono font-medium">{formatNumber(selectedVertex.x)}</p>
+                <div className="rounded bg-cyan-50 p-2 dark:bg-cyan-900/20">
+                  <span className="text-xs text-cyan-600 dark:text-cyan-400">x₁</span>
+                  <p className="font-mono font-medium text-cyan-900 dark:text-cyan-100">{formatNumber(selectedVertex.x)}</p>
                 </div>
-                <div className="bg-gray-50 p-2 rounded">
-                  <span className="text-xs text-gray-500">x₂</span>
-                  <p className="font-mono font-medium">{formatNumber(selectedVertex.y)}</p>
+                <div className="rounded bg-cyan-50 p-2 dark:bg-cyan-900/20">
+                  <span className="text-xs text-cyan-600 dark:text-cyan-400">x₂</span>
+                  <p className="font-mono font-medium text-cyan-900 dark:text-cyan-100">{formatNumber(selectedVertex.y)}</p>
                 </div>
               </div>
             </div>
             <div>
-              <h4 className="text-sm font-semibold text-gray-700 mb-2">Función Objetivo</h4>
-              <div className="bg-green-50 p-3 rounded border border-green-200">
-                <p className="font-mono font-medium text-green-900">
-                  {formatNumber(selectedVertex.x || 0)}
+              <h4 className="mb-2 text-sm font-semibold text-slate-700 dark:text-slate-300">Función Objetivo</h4>
+              <div className="rounded border border-cyan-300 bg-cyan-100 p-3 dark:border-cyan-800 dark:bg-cyan-900/40">
+                <p className="font-mono font-medium text-cyan-900 dark:text-cyan-100">
+                  {formatNumber('valor' in selectedVertex ? (selectedVertex as any).valor : 0)}
                 </p>
               </div>
             </div>

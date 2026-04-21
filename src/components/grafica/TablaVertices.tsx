@@ -1,6 +1,4 @@
-import { useState } from 'react';
-import { CheckCircle, ChevronDown, ChevronUp } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { CheckCircle } from 'lucide-react';
 import { SolucionGrafica } from '@/data/interfaces';
 
 interface TablaProps {
@@ -9,31 +7,17 @@ interface TablaProps {
 }
 
 export function TablaVertices({ solucion, onHover }: TablaProps) {
-  const [isExpanded, setIsExpanded] = useState(true);
   const vertices = solucion.Vertices;
   const optimo = solucion.VerticeOptimo;
   return (
-    <div className="bg-white rounded-lg overflow-hidden border border-gray-200">
-      <div 
-        className="bg-gray-50 px-4 py-2.5 border-b border-gray-200 flex justify-between items-center cursor-pointer hover:bg-gray-100 transition-colors"
-        onClick={() => setIsExpanded(!isExpanded)}
-      >
+    <div className="bg-white rounded-md overflow-hidden border border-gray-200">
+      {/* <div className="bg-gray-50 px-4 py-2.5 border-b border-gray-200 flex justify-between items-center">
         <h3 className="text-gray-800 font-medium">Análisis de los vértices</h3>
-        {isExpanded ? <ChevronUp className="w-5 h-5 text-gray-500" /> : <ChevronDown className="w-5 h-5 text-gray-500" />}
-      </div>
+      </div> */}
       
-      <AnimatePresence initial={false}>
-        {isExpanded && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="overflow-hidden"
-          >
             <div className="overflow-x-auto">
               <table className="w-full text-sm text-left text-gray-500">
-                <thead className="text-xs text-gray-700 uppercase bg-gray-50">
+                <thead className="text-xs text-gray-700 uppercase bg-cyan-50">
                   <tr className='text-center'>
                     <th className="px-4 py-3">Vértice</th>
                     <th className="px-4 py-3">Coordenadas (x₁, x₂)</th>
@@ -46,7 +30,7 @@ export function TablaVertices({ solucion, onHover }: TablaProps) {
                     return (
                       <tr 
                         key={idx} 
-                        className={`text-center ${isOptimal ? 'bg-green-100/70' : 'bg-white'} hover:bg-gray-50 transition-colors cursor-pointer`}
+                        className={`text-center ${isOptimal ? 'bg-green-100/70' : 'bg-white'} hover:bg-cyan-50 transition-colors cursor-pointer`}
                         onMouseEnter={() => onHover?.(v)}
                         onMouseLeave={() => onHover?.(null)}
                       >
@@ -66,9 +50,6 @@ export function TablaVertices({ solucion, onHover }: TablaProps) {
                 </tbody>
               </table>
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   );
 }

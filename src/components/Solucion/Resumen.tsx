@@ -1,5 +1,4 @@
 import { MethodResult } from "@/data/interfaces";
-import { formatNumber } from "@/utiles/numeros";
 
 export default function ResumenSolucion({
   activeResult,
@@ -7,61 +6,23 @@ export default function ResumenSolucion({
   activeResult: MethodResult;
 }) {
   return (
-    <div className="overflow-hidden rounded-md border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950">
-      <div className="grid grid-cols-2 divide-x divide-slate-200 dark:divide-slate-800">
-        
-        <div className="flex flex-col justify-center gap-y-2 p-4">
-          <div className="flex flex-col">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-              Valor Objetivo
-            </span>
-            <span className="text-lg font-semibold tabular-nums text-slate-600 dark:text-slate-300">
-              {activeResult.ValorOptimo !== null
-                ? formatNumber(activeResult.ValorOptimo)
-                : "N/A"}
-            </span>
-          </div>
-          
-          <div className="flex flex-col">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-              Vector Solución
-            </span>
-            <span className="text-md text-slate-700 dark:text-slate-300" title={
-              activeResult.variables ? Object.entries(activeResult.variables).map(([k, v]) => `${k}=${v}`).join(", ") : ""
-            }>
-              {activeResult.variables && Object.keys(activeResult.variables).length > 0
-                ? Object.entries(activeResult.variables)
-                    .map(([key, value]) => `${key}=${formatNumber(value)}`)
-                    .join(", ")
-                : "N/A"}
-            </span>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 gap-2 bg-slate-50/50 p-4 dark:bg-slate-900/30">
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-slate-500">Tipo:</span>
-            <span className="rounded-md px-2 py-0.5 text-sm font-medium text-slate-700 dark:text-slate-300">
-              {activeResult.analysis.tipo_solucion}
-            </span>
-          </div>
-          
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-slate-500">Acotamiento:</span>
-            <span className={`text-sm ${activeResult.analysis.acotada ? 'text-slate-800' : 'text-rose-600'}`}>
-              {activeResult.analysis.acotada ? "Acotada" : "No Acotada"}
-            </span>
-          </div>
-
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-slate-500">Degeneración:</span>
-            <span className={`text-sm ${activeResult.analysis.degeneracion ? 'text-amber-600' : 'text-slate-800 dark:text-slate-300'}`}>
-              {activeResult.analysis.degeneracion ? "Sí" : "No"}
-            </span>
-          </div>
-        </div>
-
-      </div>
+    <div className="overflow-x-auto rounded-md border border-slate-200 transition-colors duration-300 dark:border-cyan-900/50">
+      <table className="min-w-full text-center text-sm">
+        <thead className="bg-cyan-50 text-cyan-800 dark:bg-cyan-900/20 dark:text-cyan-300">
+          <tr>
+            <th className="px-3 py-2 font-medium">Tipo</th>
+            <th className="px-3 py-2 font-medium">Acotada</th>
+            <th className="px-2 py-2 font-medium">Degeneración</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-cyan-100 dark:divide-cyan-900/50">
+          <tr className="bg-white transition-colors hover:bg-cyan-50/50 dark:bg-slate-950 dark:hover:bg-cyan-900/10">
+            <td className="px-4 py-2 text-slate-700 dark:text-slate-300">{activeResult.analysis.tipo_solucion}</td>
+            <td className="px-4 py-2 text-slate-700 dark:text-slate-300">{activeResult.analysis.acotada ? "Sí" : "No"}</td>
+            <td className="px-4 py-2 text-slate-700 dark:text-slate-300">{activeResult.analysis.degeneracion ? "Sí" : "No"}</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   );
 }

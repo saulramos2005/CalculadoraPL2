@@ -1,6 +1,6 @@
-import { Target, RotateCcw, ZoomIn, ZoomOut, Maximize, Minimize } from 'lucide-react';
+import { Target, RefreshCcw as RotateCcw, ZoomIn, ZoomOut, Maximize, Minimize } from 'lucide-react';
 import { useState, useEffect } from 'react';
-
+import { baseButtonClass, tooltipClass } from '@/data/styles';
 interface HeaderProps {
   onReset: () => void;
   onCenterOptimum: () => void;
@@ -28,37 +28,46 @@ export function HeaderGrafica({ onReset, onCenterOptimum, onZoomIn, onZoomOut, z
       <div className="flex items-center gap-2">
         <button
           onClick={onReset}
-          className="flex items-center gap-1 px-2 py-1 bg-gray-200 text-gray-700 rounded-md text-sm hover:bg-gray-300 transition-colors"
+          className={baseButtonClass}
+          aria-label="Reiniciar vista"
         >
-          <RotateCcw className="w-4 h-4" /> {window.innerWidth > 768 ? "Reiniciar Vista" : "Reiniciar"}
+          <RotateCcw size={18} />
+          <span className={tooltipClass}>Reiniciar vista</span>
         </button>
         <button
           onClick={onCenterOptimum}
-          className="flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-700 rounded-md text-sm hover:bg-blue-200 transition-colors"
+          className={baseButtonClass}
+          aria-label="Centrar óptimo"
         >
-          <Target className="w-4 h-4" /> {window.innerWidth > 768 ? "Centrar Óptimo" : "Óptimo"}
+          <Target size={18} />
+          <span className={tooltipClass}>Centrar óptimo</span>
         </button>
-
-
       </div>
-      <div className='flex gap-2'>
-        <div className="flex items-center bg-gray-100 rounded-md border border-gray-300">
-          <button onClick={onZoomOut} className="p-1.5 hover:bg-gray-200 text-gray-700 rounded-l-md transition-colors" title="Alejar">
-            <ZoomOut className="w-4 h-4" />
+      
+      <div className="flex gap-2">
+        <div className="flex items-center rounded-md border border-slate-300 bg-cyan-50 dark:border-slate-600 dark:bg-cyan-600/20">
+          <button onClick={onZoomOut} aria-label="Alejar" className="group relative p-1.5 text-slate-700 transition hover:bg-cyan-100 dark:text-slate-100 dark:hover:bg-cyan-900/40 rounded-l-md">
+            <ZoomOut size={18} />
+            <span className={tooltipClass}>Alejar</span>
           </button>
-          <div className="px-2 text-sm font-mono text-gray-700 border-x border-gray-300 min-w-[60px] text-center">
+          <div className="border-x border-slate-300 px-2 text-center text-sm font-mono text-slate-700 min-w-[60px] dark:border-slate-600 dark:text-slate-100">
             {zoom.toFixed(2)}x
           </div>
-          <button onClick={onZoomIn} className="p-1.5 hover:bg-gray-200 text-gray-700 rounded-r-md transition-colors" title="Acercar">
-            <ZoomIn className="w-4 h-4" />
+          <button onClick={onZoomIn} aria-label="Acercar" className="group relative p-1.5 text-slate-700 transition hover:bg-cyan-100 dark:text-slate-100 dark:hover:bg-cyan-900/40 rounded-r-md">
+            <ZoomIn size={18} />
+            <span className={tooltipClass}>Acercar</span>
           </button>
         </div>
+        
         <button
           onClick={onToggleFullscreen}
-          className="flex items-center gap-1 px-3 py-1 bg-gray-100 text-gray-700 rounded-md text-sm hover:bg-gray-200 transition-colors"
-          title={isFullscreen ? "Salir de pantalla completa" : "Pantalla completa"}
+          className={baseButtonClass}
+          aria-label={isFullscreen ? "Salir de pantalla completa" : "Pantalla completa"}
         >
-          {isFullscreen ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
+          {isFullscreen ? <Minimize size={18} /> : <Maximize size={18} />}
+          <span className="pointer-events-none absolute bottom-full right-0 z-50 mb-2 whitespace-nowrap rounded bg-slate-800 px-2 py-1 text-xs text-white opacity-0 transition-opacity group-hover:opacity-100 dark:bg-slate-200 dark:text-slate-900">
+            {isFullscreen ? "Contraer" : "Pantalla completa"}
+          </span>
         </button>
       </div>
     </div>

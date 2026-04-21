@@ -1,7 +1,6 @@
 import { useRef, useEffect } from "react";
 import { SolucionGrafica } from "@/data/interfaces";
 import { HeaderGrafica } from "./HeaderGrafica";
-import { TablaVertices } from "./TablaVertices";
 import { renderCanvas } from "./ContenidoGrafica"; // Nueva lógica de dibujo
 import LabelFlotante from "./LabelFlotante";
 import { useInteraccionGrafica } from "./useInteraccionGrafica";
@@ -26,8 +25,6 @@ export default function GraficaSolucion({
     setCamera,
     pointer,
     isRegionHovered,
-    verticeSelec,
-    setVerticeSelec,
     verticeTablaHovered,
     setVerticeTablaHovered,
     stopAnimacion,
@@ -107,13 +104,6 @@ export default function GraficaSolucion({
           {/* <DetallesVertice verticeSelec={verticeSelec} setVerticeSelec={setVerticeSelec} solucion={solucion} /> */}
           </div>
         </div>
-      )}
-
-      {solucion.analysis.factible && (
-        <TablaVertices
-        solucion={solucion}
-        onHover={setVerticeTablaHovered}
-      />
       )}
     </div>
   );

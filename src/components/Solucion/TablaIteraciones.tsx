@@ -9,9 +9,9 @@ export default function TablaIteraciones({ activeResult, problem }: { activeResu
   return (
     <div className="space-y-2">
       <p className="text-sm text-slate-700 dark:text-slate-300">Tabla de iteraciones ({activeResult.tablas.length})</p>
-      <div className="max-h-72 overflow-auto rounded-lg border border-slate-200 transition-colors duration-300 dark:border-slate-800">
+      <div className="max-h-72 overflow-auto rounded-lg border border-cyan-100 transition-colors duration-300 dark:border-cyan-900/50">
         <table className="min-w-full text-xs">
-          <thead className="sticky top-0 bg-slate-50 dark:bg-slate-950">
+          <thead className="sticky top-0 bg-cyan-50 text-cyan-800 dark:bg-cyan-900/20 dark:text-cyan-300">
             <tr>
               <th className="px-2 py-2 text-left">Iteración</th>
               <th className="px-2 py-2 text-left">Pivote</th>
@@ -20,7 +20,7 @@ export default function TablaIteraciones({ activeResult, problem }: { activeResu
           </thead>
           <tbody>
             {activeResult.tablas.map((iteration) => (
-              <tr key={iteration.iteracion} className="border-t border-slate-200 dark:border-slate-800">
+              <tr key={iteration.iteracion} className="border-t border-cyan-100 transition-colors hover:bg-cyan-50/50 dark:border-cyan-900/50 dark:hover:bg-cyan-900/10">
                 <td className="px-2 py-2">{iteration.iteracion}</td>
                 <td className="px-2 py-2">{iteration.columnaPivote}</td>
                 <td className="px-2 py-2">
