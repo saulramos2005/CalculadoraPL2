@@ -1,43 +1,6 @@
 import { Desigualdad, SolucionSimplex, TablaSimplex } from "../data/interfaces";
 import { OptType as Optimizacion } from "../data/types";
-import { EPSILON ,ejecutarIteracionDual } from "./ejecutarIteraciones";
-
-export function ejecutarIteracionesDualSimplex(
-  tablaInicial: TablaSimplex,
-  maxIteraciones = 50,
-) {
-  const tablas: TablaSimplex[] = [];
-  let actual: TablaSimplex = {
-    ...tablaInicial,
-    matriz: tablaInicial.matriz.map((r) => [...r]),
-    basicas: [...tablaInicial.basicas],
-    encabezados: [...tablaInicial.encabezados],
-    es_optima: false,
-  };
-
-  tablas.push({ ...actual, iteracion: 0 });
-
-  for (let k = 0; k < maxIteraciones; k++) {
-    const siguiente = ejecutarIteracionDual(actual);
-
-    // Si no hubo cambio o es óptima
-    if (siguiente.es_optima) {
-      tablas.push({ ...siguiente, iteracion: tablas.length });
-      return { tablas, es_infactible: false };
-    }
-
-    // Si es infactible, terminamos
-    if (siguiente.es_infactible) {
-      tablas.push({ ...siguiente, iteracion: tablas.length });
-      return { tablas, es_infactible: true };
-    }
-
-    tablas.push({ ...siguiente, iteracion: tablas.length });
-    actual = siguiente;
-  }
-
-  return { tablas, es_infactible: false };
-}
+import { EPSILON, ejecutarIteracionDual } from "./ejecutarIteraciones";
 
 export function resolverMetodoDualSimplex(
   FuncionObjetivo: number[],
@@ -45,100 +8,132 @@ export function resolverMetodoDualSimplex(
   tipo_optimizacion: Optimizacion,
   numVariables: number,
 ): SolucionSimplex {
-  const Funcion_Obj =
-    tipo_optimizacion === "min"
-      ? FuncionObjetivo.map((c) => -c)
-      : [...FuncionObjetivo];
-
-  const num_var_artificiales = restricciones.length;
+  const num_restricciones = restricciones.length;
+  const esMax = tipo_optimizacion === "max";
   let matriz: number[][] = [];
 
-  restricciones.forEach((r) => {
-    const fila: number[] = [...r.coeficientes];
+  restricciones.forEach((r, idx) => {
+    let fila = [...r.coeficientes];
+    let rhs = r.rhs;
 
-    for (let j = 0; j < num_var_artificiales; j++) {
-      fila.push(j === matriz.length ? 1 : 0);
+    
+    if (r.operador === ">=") {
+      fila = fila.map(c => (c === 0 ? 0 : -c));
+      rhs = rhs === 0 ? 0 : -rhs;
     }
 
-    fila.push(r.rhs);
+    
+    for (let j = 0; j < num_restricciones; j++) {
+      fila.push(j === idx ? 1 : 0);
+    }
+    fila.push(rhs);
     matriz.push(fila);
   });
 
-  // Fila Z
-  const fila_obj: number[] = Funcion_Obj.map((c) => -c);
-  for (let i = 0; i < num_var_artificiales; i++) {
-    fila_obj.push(0);
+  let fila_obj = [...FuncionObjetivo];
+
+  if (esMax) {
+    fila_obj = fila_obj.map(c => (c === 0 ? 0 : -c));
   }
-  fila_obj.push(0);
+  
+  fila_obj = fila_obj.map(c => (c === 0 ? 0 : -c)); 
+
+  for (let i = 0; i < num_restricciones; i++) fila_obj.push(0);
+  fila_obj.push(0); 
   matriz.push(fila_obj);
 
-  let basicas: string[] = [];
-  for (let i = 0; i < num_var_artificiales; i++) {
-    basicas.push(`s${i + 1}`);
-  }
-
+  const basicas = Array.from({ length: num_restricciones }, (_, i) => `s${i + 1}`);
   const encabezados = [
     ...Array.from({ length: numVariables }, (_, i) => `x${i + 1}`),
-    ...Array.from({ length: restricciones.length }, (_, i) => `s${i + 1}`),
+    ...Array.from({ length: num_restricciones }, (_, i) => `s${i + 1}`),
     "Sol",
   ];
 
-  const resultado = ejecutarIteracionesDualSimplex(
-    {
-      iteracion: 0,
-      basicas,
-      matriz,
-      encabezados,
-      es_optima: false,
-    },
-    50,
-  );
+  const tablas: TablaSimplex[] = [];
+  let actual: TablaSimplex = { 
+    iteracion: 0, 
+    basicas: [...basicas], 
+    matriz: JSON.parse(JSON.stringify(matriz)), 
+    encabezados, 
+    es_optima: false 
+  };
+  tablas.push(actual);
 
-  const tablas = resultado.tablas;
+  for (let k = 0; k < 50; k++) {
+    const numCols = actual.matriz[0].length;
+    const ultFilaIdx = actual.matriz.length - 1;
+    
+    let filaPivoteIdx = -1;
+    let minRHS = -EPSILON;
 
-  // Analisis de Solucion similar a simplex
-  const variables: { [key: string]: number } = {};
-  const final = tablas[tablas.length - 1];
-
-  final.basicas.forEach((nombreVar, i) => {
-    const valor = final.matriz[i][final.matriz[0].length - 1];
-    if (valor > EPSILON) {
-      variables[nombreVar] = valor;
-    }
-  });
-
-  const optimalValue =
-    tipo_optimizacion === "min"
-      ? -final.matriz[final.matriz.length - 1][final.matriz[0].length - 1]
-      : final.matriz[final.matriz.length - 1][final.matriz[0].length - 1];
-
-  const esDegenerada = final.basicas.some(
-    (_, i) => Math.abs(final.matriz[i][final.matriz[0].length - 1]) < EPSILON,
-  );
-
-  let tieneSolucionesMultiples = false;
-  const filaZFinal = final.matriz[final.matriz.length - 1];
-  for (let j = 0; j < final.matriz[0].length - 1; j++) {
-    const nombreVar = final.encabezados[j];
-    if (!final.basicas.includes(nombreVar)) {
-      if (Math.abs(filaZFinal[j]) < EPSILON) {
-        tieneSolucionesMultiples = true;
-        break;
+    for (let i = 0; i < ultFilaIdx; i++) {
+      const rhs = actual.matriz[i][numCols - 1];
+      if (rhs < minRHS) {
+        minRHS = rhs;
+        filaPivoteIdx = i;
       }
     }
+
+    if (filaPivoteIdx === -1) {
+      actual.es_optima = true;
+      break;
+    }
+
+    const filaPivote = actual.matriz[filaPivoteIdx];
+    const coeficientesVariables = filaPivote.slice(0, numCols - 1);
+    const esInfactible = coeficientesVariables.every(coef => coef >= -EPSILON);
+
+    if (esInfactible) {
+      actual.es_infactible = true;
+      break; 
+    }
+
+    const siguiente = ejecutarIteracionDual(actual);
+    tablas.push(siguiente);
+
+    if (siguiente.es_infactible || siguiente.es_optima) break;
+    actual = siguiente;
   }
 
+  const final = tablas[tablas.length - 1];
+  const variables: { [key: string]: number } = {};
+  
+  final.basicas.forEach((nombre, i) => {
+    const valor = final.matriz[i][final.matriz[i].length - 1];
+    variables[nombre] = Math.abs(valor) < EPSILON ? 0 : valor;
+  });
+
+  let valorZReal = 0;
+  FuncionObjetivo.forEach((coef, i) => {
+    const nombreVar = `x${i + 1}`;
+    const valorVar = final.basicas.includes(nombreVar) 
+      ? final.matriz[final.basicas.indexOf(nombreVar)][final.matriz[0].length - 1]
+      : 0;
+    valorZReal += coef * valorVar;
+  });
+
+  const ultFilaIdx = final.matriz.length - 1; 
+
+  
+  const tieneSolucionesMultiples = !final.es_infactible && 
+    Array.from({ length: numVariables }).some((_, i) => {
+      const nombreX = `x${i + 1}`;
+      return !final.basicas.includes(nombreX) && Math.abs(final.matriz[ultFilaIdx][i]) < EPSILON;
+    });
+    
   return {
     method: "dualSimplex",
     tablas,
-    ValorOptimo: optimalValue,
+    ValorOptimo: Math.abs(valorZReal) < EPSILON ? 0 : valorZReal,
     variables,
     analysis: {
-      observaciones: [],
+      observaciones: final.es_infactible ? ["El problema es infactible"] : [],
       acotada: true,
-      factible: true,
-      degeneracion: esDegenerada,
-      tipo_solucion: tieneSolucionesMultiples ? "Multiple" : "Unica"
+      tipo_solucion: final.es_infactible ? "Sin Solucion" : (tieneSolucionesMultiples ? "Multiple" : "Unica"),
+      factible: !final.es_infactible,
+      degeneracion: final.basicas.some((_, i) => 
+        Math.abs(final.matriz[i][final.matriz[0].length - 1]) < EPSILON
+      ),
     }
-  };
+    };
 }
