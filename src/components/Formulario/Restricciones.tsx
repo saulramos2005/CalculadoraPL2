@@ -18,7 +18,7 @@ export default function Restricciones({ problem, setProblem, updateConstraintCoe
         <button
           type="button"
           onClick={addConstraint}
-          className="rounded-lg border border-cyan-600 px-3 py-1.5 text-xs font-medium text-cyan-700 transition hover:bg-cyan-50 dark:text-cyan-300 dark:hover:bg-cyan-600/10"
+          className="rounded-md border border-cyan-600 px-3 py-1.5 text-xs font-medium text-cyan-700 transition hover:bg-cyan-50 dark:text-cyan-300 dark:hover:bg-cyan-600/10"
         >
           <span className="flex items-center gap-2">
             Agregar
