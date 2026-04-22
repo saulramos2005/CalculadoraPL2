@@ -10,10 +10,14 @@ export function resolverMetodoGrafico(
   
   // 1. Escala y recolección de intersecciones con Labels Descriptivos
   restricciones.forEach((r, i) => {
-    const [a, b] = r.coeficientes;
+  
+    const a = Number(r.coeficientes[0]);
+    const b = Number(r.coeficientes[1]);
+    const rhs = Number(r.rhs);
+
     // Intersección con Ejes
-    if (a !== 0) todasLasIntersecciones.push({ x: r.rhs / a, y: 0, label: `R${i + 1} ∩ Eje X` });
-    if (b !== 0) todasLasIntersecciones.push({ x: 0, y: r.rhs / b, label: `R${i + 1} ∩ Eje Y` });
+    if (a !== 0) todasLasIntersecciones.push({ x: rhs / a, y: 0, label: `R${i + 1} ∩ Eje X` });
+    if (b !== 0) todasLasIntersecciones.push({ x: 0, y: rhs / b, label: `R${i + 1} ∩ Eje Y` });
 
     // Intersección entre restricciones
     for (let j = i + 1; j < restricciones.length; j++) {
@@ -36,31 +40,38 @@ export function resolverMetodoGrafico(
   }
 
   todasLasIntersecciones.forEach((p) => {
-    if (p.x >= -1e-6 && p.y >= -1e-6 && esFactible([p.x, p.y], restricciones)) {
-      puntosFactibles.push(p);
+
+    const px = Math.abs(p.x) < 1e-6 ? 0 : p.x;
+    const py = Math.abs(p.y) < 1e-6 ? 0 : p.y;
+
+    if (px >= 0 && py >= 0 && esFactible([px, py], restricciones)) {
+      puntosFactibles.push({ x: px, y: py, label: p.label });
     }
   });
 
   // 3. Proyecciones para detectar regiones no acotadas (Labels de fuga)
   const puntosFuga: Punto[] = [];
   restricciones.forEach((r, i) => {
-    const [a, b] = r.coeficientes;
+    const a = Number(r.coeficientes[0]);
+    const b = Number(r.coeficientes[1]);
+    const rhs = Number(r.rhs);
+
     if (b === 0 && a !== 0) {
-      const x = r.rhs / a;
+      const x = rhs / a;
       if (x >= 0 && esFactible([x, LIMITE_VISUAL], restricciones)) 
         puntosFuga.push({ x, y: LIMITE_VISUAL, label: `R${i+1} ∩ Límite` });
     } 
     else if (a === 0 && b !== 0) {
-      const y = r.rhs / b;
+      const y = rhs / b;
       if (y >= 0 && esFactible([LIMITE_VISUAL, y], restricciones)) 
         puntosFuga.push({ x: LIMITE_VISUAL, y, label: `R${i+1} ∩ Límite` });
     } 
     else if (a !== 0 && b !== 0) {
-      const x_top = (r.rhs - b * LIMITE_VISUAL) / a;
+      const x_top = (rhs - b * LIMITE_VISUAL) / a;
       if (x_top >= 0 && x_top <= LIMITE_VISUAL && esFactible([x_top, LIMITE_VISUAL], restricciones)) 
         puntosFuga.push({ x: x_top, y: LIMITE_VISUAL, label: `R${i+1} ∩ Límite Sup.` });
       
-      const y_right = (r.rhs - a * LIMITE_VISUAL) / b;
+      const y_right = (rhs - a * LIMITE_VISUAL) / b;
       if (y_right >= 0 && y_right <= LIMITE_VISUAL && esFactible([LIMITE_VISUAL, y_right], restricciones)) 
         puntosFuga.push({ x: LIMITE_VISUAL, y: y_right, label: `R${i+1} ∩ Límite Der.` });
     }
@@ -85,10 +96,7 @@ export function resolverMetodoGrafico(
       Lineas_de_restriccion: [], LineaObjetivo: [],
       analysis: {
         observaciones: ["No se encontraron puntos factibles."],
-        acotada: true, 
-        factible: false, 
-        degeneracion: false, 
-        tipo_solucion: "Infactible"
+        acotada: true, factible: false, degeneracion: false, tipo_solucion: "Infactible"
       }
     };
   }
@@ -123,14 +131,16 @@ export function resolverMetodoGrafico(
   const VerticeOptimo = optimos[0];
 
   const LineasRestriccion = restricciones.map((r, index) => {
-    const [a, b] = r.coeficientes;
+    const a = Number(r.coeficientes[0]);
+    const b = Number(r.coeficientes[1]);
+    const rhs = Number(r.rhs);
     const pts: Punto[] = [];
     const EXT = LIMITE_VISUAL * 1.2;
-    if (a !== 0 && b !== 0) pts.push({ x: 0, y: r.rhs / b }, { x: r.rhs / a, y: 0 });
-    else if (a === 0) pts.push({ x: 0, y: r.rhs / b }, { x: EXT, y: r.rhs / b });
-    else pts.push({ x: r.rhs / a, y: 0 }, { x: r.rhs / a, y: EXT });
+    if (a !== 0 && b !== 0) pts.push({ x: 0, y: rhs / b }, { x: rhs / a, y: 0 });
+    else if (a === 0) pts.push({ x: 0, y: rhs / b }, { x: EXT, y: rhs / b });
+    else pts.push({ x: rhs / a, y: 0 }, { x: rhs / a, y: EXT });
 
-    return { id: r.id, puntos: pts, label: `R${index + 1}: ${a}x₁ ${b >= 0 ? '+' : ''} ${b}x₂ ${r.operador} ${r.rhs}` };
+    return { id: r.id, puntos: pts, label: `R${index + 1}: ${a}x₁ ${b >= 0 ? '+' : ''} ${b}x₂ ${r.operador} ${rhs}` };
   });
 
   return {
@@ -148,10 +158,7 @@ export function resolverMetodoGrafico(
     LineaObjetivo: generarLineaObjetivo(VerticeOptimo.valor, FuncionObjetivo, LIMITE_VISUAL),
     analysis: {
       observaciones: esIndefinida ? ["La función objetivo es no acotada en la región factible."] : [],
-      acotada: !esIndefinida,
-      factible: true,
-      degeneracion: esDegenerada,
-      tipo_solucion: tipoSolucion
+      acotada: !esIndefinida, factible: true, degeneracion: esDegenerada, tipo_solucion: tipoSolucion
     }
   } as SolucionGrafica;
 }
@@ -160,8 +167,10 @@ export function resolverMetodoGrafico(
 
 function contarRestriccionesEnPunto(p: Punto, restricciones: Desigualdad[]): number {
   return restricciones.filter(r => {
-    const [a, b] = r.coeficientes;
-    return Math.abs(a * p.x + b * p.y - r.rhs) < 1e-6;
+    const a = Number(r.coeficientes[0]);
+    const b = Number(r.coeficientes[1]);
+    const rhs = Number(r.rhs);
+    return Math.abs(a * p.x + b * p.y - rhs) < 1e-6;
   }).length;
 }
 
@@ -179,22 +188,32 @@ function generarLineaObjetivo(k: number, FO: number[], limite: number): Punto[] 
 }
 
 function hallarInterseccion(c1: Desigualdad, c2: Desigualdad): Punto | null {
-  const [a1, b1] = c1.coeficientes;
-  const [a2, b2] = c2.coeficientes;
+  const a1 = Number(c1.coeficientes[0]);
+  const b1 = Number(c1.coeficientes[1]);
+  const rhs1 = Number(c1.rhs);
+  const a2 = Number(c2.coeficientes[0]);
+  const b2 = Number(c2.coeficientes[1]);
+  const rhs2 = Number(c2.rhs);
+
   const det = a1 * b2 - a2 * b1;
   if (Math.abs(det) < 1e-10) return null;
-  const x = (c1.rhs * b2 - c2.rhs * b1) / det;
-  const y = (a1 * c2.rhs - a2 * c1.rhs) / det;
+  const x = (rhs1 * b2 - rhs2 * b1) / det;
+  const y = (a1 * rhs2 - a2 * rhs1) / det;
   return { x, y };
 }
 
 function esFactible(punto: number[], restricciones: Desigualdad[]): boolean {
   return restricciones.every(r => {
-    const [a, b] = r.coeficientes;
+    const a = Number(r.coeficientes[0]);
+    const b = Number(r.coeficientes[1]);
+    const rhs = Number(r.rhs);
     const val = a * punto[0] + b * punto[1];
-    if (r.operador === "<=") return val <= r.rhs + 1e-8;
-    if (r.operador === ">=") return val >= r.rhs - 1e-8;
-    return Math.abs(val - r.rhs) < 1e-8;
+    
+    const op = String(r.operador).trim().replace('≤', '<=').replace('≥', '>=');
+    
+    if (op === "<=") return val <= rhs + 1e-6;
+    if (op === ">=") return val >= rhs - 1e-6;
+    return Math.abs(val - rhs) < 1e-6;
   });
 }
 

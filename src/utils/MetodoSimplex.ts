@@ -10,22 +10,45 @@ export function resolverMetodoSimplex(
   tipo_optimizacion: Optimizacion,
   numVariables: number,
 ): SolucionSimplex {
+  
+  const tieneOperadorInvalido = restricciones.some(r => {
+    const op = String(r.operador).trim().replace('≤', '<=').replace('≥', '>=');
+    return op !== "<=";
+  });
+
+  if (tieneOperadorInvalido) {
+    return {
+      method: "simplex",
+      tablas: [],
+      ValorOptimo: 0,
+      variables: {},
+      analysis: {
+        observaciones: ["El método Simplex básico implementado solo acepta restricciones de tipo menor o igual (<=)."],
+        acotada: false,
+        factible: false,
+        degeneracion: false,
+        tipo_solucion: "Infactible"
+      }
+    };
+  }
+
   const Funcion_Obj =
     tipo_optimizacion === "min"
-      ? FuncionObjetivo.map((c) => -c)
-      : [...FuncionObjetivo];
+      ? FuncionObjetivo.map((c) => -Number(c))
+      : FuncionObjetivo.map((c) => Number(c));
 
   // Construir tabla inicial
   const num_var_artificiales = restricciones.length;
   let matriz: number[][] = [];
+  
   restricciones.forEach((r, i) => {
-    const fila: number[] = [...r.coeficientes];
+    const fila: number[] = r.coeficientes.map(Number);
 
     for (let j = 0; j < num_var_artificiales; j++) {
       fila.push(j === i ? 1 : 0);
     }
 
-    fila.push(r.rhs);
+    fila.push(Number(r.rhs));
     matriz.push(fila);
   });
 
@@ -67,13 +90,12 @@ export function resolverMetodoSimplex(
     };
   }
 
-  // Analisis de Solucion
   const variables: { [key: string]: number } = {};
+  const matrizFinal = resultado.matriz; // Usar la matriz después de iterar
 
   resultado.basicas.forEach((nombreVar, i) => {
-    const valor = resultado.matriz[i][encabezados.length - 1];
+    const valor = matrizFinal[i][encabezados.length - 1];
 
-    // Solo incluimos la variable si su valor es mayor que el EPSILON
     if (valor > EPSILON) {
       variables[nombreVar] = valor;
     }
@@ -81,20 +103,20 @@ export function resolverMetodoSimplex(
 
   const optimalValue =
     tipo_optimizacion === "min"
-      ? -matriz[matriz.length - 1][matriz[0].length - 1]
-      : matriz[matriz.length - 1][matriz[0].length - 1];
+      ? -matrizFinal[matrizFinal.length - 1][matrizFinal[0].length - 1]
+      : matrizFinal[matrizFinal.length - 1][matrizFinal[0].length - 1];
 
   // Detección de Degeneración (Variable básica en cero)
-  const esDegenerada = basicas.some(
-    (_, i) => Math.abs(matriz[i][matriz[0].length - 1]) < EPSILON,
+  const esDegenerada = resultado.basicas.some(
+    (_, i) => Math.abs(matrizFinal[i][matrizFinal[0].length - 1]) < EPSILON,
   );
 
   // Detección de Soluciones Múltiples (Variable no básica con Cj-Zj = 0 en fila óptima)
   let tieneSolucionesMultiples = false;
-  const filaZFinal = matriz[matriz.length - 1];
-  for (let j = 0; j < matriz[0].length - 1; j++) {
+  const filaZFinal = matrizFinal[matrizFinal.length - 1];
+  for (let j = 0; j < matrizFinal[0].length - 1; j++) {
     const nombreVar = encabezados[j];
-    if (!basicas.includes(nombreVar)) {
+    if (!resultado.basicas.includes(nombreVar)) {
       if (Math.abs(filaZFinal[j]) < EPSILON) {
         tieneSolucionesMultiples = true;
         break;
