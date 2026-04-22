@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Calculator, Eye, FileText, Wrench } from "lucide-react";
 import { Method } from "./data/types";
 import { ProblemaLineal } from "./data/interfaces";
 import { STORAGE_KEY } from "./data/constants";
@@ -9,6 +10,8 @@ import { SolucionDisplay } from "./components/SolucionDisplay";
 import { problemaEjemplo } from "./data/problemaEjemplo";
 
 const PROBLEM_STORAGE_KEY = "lp-problem-state";
+
+type MobileTab = "problema" | "visual" | "analitico" | "sensibilidad";
 
 export function App() {
   const [problem, setProblem] = useState<ProblemaLineal>(() => {
@@ -42,6 +45,7 @@ export function App() {
     if (storedTheme) return storedTheme === "dark";
     return window.matchMedia("(prefers-color-scheme: dark)").matches;
   });
+  const [mobileTab, setMobileTab] = useState<MobileTab>("problema");
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({ resultsByMethod }));
@@ -98,16 +102,80 @@ export function App() {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 transition-colors duration-300 dark:bg-slate-700 dark:text-slate-100">
       <Header isDarkMode={isDarkMode} toggleTheme={() => setIsDarkMode(!isDarkMode)} />
-      <main className="mx-auto grid w-full max-w-6xl gap-8 px-4 py-6 sm:px-6 lg:grid-cols-[1.1fr_1fr] lg:px-8">
-        <ProblemForm
-          problem={problem}
-          setProblem={setProblem}
-          method={method}
-          setMethod={setMethod}
-          solveProblem={solveProblem}
-          feedback={feedback}
-        />
-        <SolucionDisplay method={method} activeResult={activeResult} problem={problem} />
+      <main className="mx-auto flex flex-col w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
+        
+        <div className="relative z-10 flex lg:hidden w-full gap-1 overflow-x-auto no-scrollbar mb-6">
+          <button
+            onClick={() => setMobileTab("problema")}
+            className={`flex items-center gap-2 rounded-t-lg border border-b-white p-2 transition-colors ${
+              mobileTab === "problema" 
+                ? "bg-white text-cyan-600 border-slate-200 dark:border-slate-800 dark:border-b-slate-950 dark:bg-slate-950 dark:text-cyan-300" 
+                : "bg-slate-50 text-slate-500 border-transparent dark:bg-slate-900 dark:text-slate-400"
+            }`}
+          >
+            <Calculator size={18} />
+            <span className="text-sm whitespace-nowrap">Problema</span>
+          </button>
+          <button
+            onClick={() => setMobileTab("visual")}
+            className={`flex items-center gap-2 rounded-t-lg border border-b-white p-2 transition-colors ${
+              mobileTab === "visual" 
+                ? "bg-white text-cyan-600 border-slate-200 dark:border-slate-800 dark:border-b-slate-950 dark:bg-slate-950 dark:text-cyan-300" 
+                : "bg-slate-50 text-slate-500 border-transparent dark:bg-slate-900 dark:text-slate-400"
+            }`}
+          >
+            <Eye size={18} />
+            <span className="text-sm whitespace-nowrap">Visual</span>
+          </button>
+          <button
+            onClick={() => setMobileTab("analitico")}
+            className={`flex items-center gap-2 rounded-t-lg border border-b-white p-2 transition-colors ${
+              mobileTab === "analitico" 
+                ? "bg-white text-cyan-600 border-slate-200 dark:border-slate-800 dark:border-b-slate-950 dark:bg-slate-950 dark:text-cyan-300" 
+                : "bg-slate-50 text-slate-500 border-transparent dark:bg-slate-900 dark:text-slate-400"
+            }`}
+          >
+            <FileText size={18} />
+            <span className="text-sm whitespace-nowrap">Analítico</span>
+          </button>
+        </div>
+
+        <div className="relative w-full flex flex-col lg:grid lg:grid-cols-[1.1fr_1fr] gap-8 items-start">
+          <div
+            className={`w-full transition-all duration-300 ease-in-out lg:relative lg:opacity-100 lg:translate-x-0 lg:flex lg:pointer-events-auto lg:visible ${
+              mobileTab === "problema"
+                ? "relative opacity-100 translate-x-0 z-10 pointer-events-auto visible"
+                : "absolute top-0 left-0 opacity-0 -translate-x-8 z-0 pointer-events-none invisible"
+            }`}
+          >
+            <ProblemForm
+              className="w-full flex"
+              problem={problem}
+              setProblem={setProblem}
+              method={method}
+              setMethod={setMethod}
+              solveProblem={solveProblem}
+              feedback={feedback}
+            />
+          </div>
+
+          <div
+            className={`w-full transition-all duration-300 ease-in-out lg:relative lg:opacity-100 lg:translate-x-0 lg:flex lg:pointer-events-auto lg:visible ${
+              mobileTab !== "problema"
+                ? "relative opacity-100 translate-x-0 z-10 pointer-events-auto visible"
+                : "absolute top-0 left-0 opacity-0 translate-x-8 z-0 pointer-events-none invisible"
+            }`}
+          >
+            <SolucionDisplay
+              className="w-full flex"
+              activeTabOverride={mobileTab !== "problema" ? (mobileTab as any) : "visual"}
+              onTabChange={(tab) => setMobileTab(tab as MobileTab)}
+              method={method}
+              activeResult={activeResult}
+              problem={problem}
+            />
+          </div>
+        </div>
       </main>
     </div>
   );

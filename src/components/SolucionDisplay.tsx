@@ -26,23 +26,39 @@ interface SolucionDisplayProps {
   method: Method;
   activeResult: SolucionGrafica | SolucionSimplex | null;
   problem: ProblemaLineal;
+  className?: string;
+  activeTabOverride?: Tab;
+  onTabChange?: (tab: Tab) => void;
 }
 
 type Tab = "visual" | "analitico" | "sensibilidad";
 
-export function SolucionDisplay({ method, activeResult, problem }: SolucionDisplayProps) {
-  const [activeTab, setActiveTab] = useState<Tab>("visual");
+export function SolucionDisplay({ 
+  method, 
+  activeResult, 
+  problem,
+  className = "",
+  activeTabOverride,
+  onTabChange
+}: SolucionDisplayProps) {
+  const [internalTab, setInternalTab] = useState<Tab>("visual");
+  const activeTab = activeTabOverride || internalTab;
+
+  const handleTabChange = (tab: Tab) => {
+    setInternalTab(tab);
+    if (onTabChange) onTabChange(tab);
+  };
 
   return (
     <motion.section
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.4, delay: 0.2 }}
-      className="flex flex-col"
+      className={`flex flex-col ${className}`}
     >
-        <div className="relative z-10 -mb-px flex gap-1 pl-4" aria-label="Tabs">
+        <div className="relative z-10 -mb-px hidden lg:flex gap-1 pl-4" aria-label="Tabs">
           <button
-            onClick={() => setActiveTab("visual")}
+            onClick={() => handleTabChange("visual")}
             className={`${tabBaseClass} ${activeTab === 'visual' ? tabActiveClass : tabInactiveClass}`}
             aria-label="Representación Visual"
           >
@@ -50,7 +66,7 @@ export function SolucionDisplay({ method, activeResult, problem }: SolucionDispl
             <span className={tooltipClass}>Representación Visual</span>
           </button>
           <button
-            onClick={() => setActiveTab("analitico")}
+            onClick={() => handleTabChange("analitico")}
             className={`${tabBaseClass} ${activeTab === 'analitico' ? tabActiveClass : tabInactiveClass}`}
             aria-label="Resumen Analítico"
           >
@@ -67,7 +83,7 @@ export function SolucionDisplay({ method, activeResult, problem }: SolucionDispl
           </button>
         </div>
 
-      <div className="relative z-0 space-y-3 rounded-xl border border-slate-200 bg-white p-3 shadow-sm transition-colors duration-300 dark:border-slate-800 dark:bg-slate-950">
+      <div className="relative z-0 space-y-3 rounded-xl border-0 lg:border border-slate-200 bg-white p-2 lg:p-3 lg:shadow-sm transition-colors duration-300 dark:border-slate-800 dark:bg-slate-950">
         <HeaderResultados method={method} activeResult={activeResult} problem={problem} activeTab={activeTab} />
 
       <AnimatePresence mode="wait">

@@ -16,6 +16,7 @@ interface ProblemFormProps {
   setMethod: (method: Method) => void;
   solveProblem: () => void;
   feedback: string;
+  className?: string;
 }
 
 export function ProblemForm({
@@ -25,6 +26,7 @@ export function ProblemForm({
   setMethod,
   solveProblem,
   feedback,
+  className = "",
 }: ProblemFormProps) {
   const updateObjectiveCoeff = (index: number, value: string) => {
     setProblem((prev) => {
@@ -94,9 +96,9 @@ export function ProblemForm({
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.4, delay: 0.1 }}
-      className="flex flex-col self-start"
+      className={`flex flex-col self-start ${className}`}
     >
-      <div className="relative z-10 -mb-px flex gap-1 pl-4" aria-hidden="true">
+      <div className="relative z-10 -mb-px hidden lg:flex gap-1 pl-4" aria-hidden="true">
         <div className="group relative flex items-center justify-center rounded-t-lg border border-slate-200 border-b-white bg-white p-2 text-cyan-600 transition-colors dark:border-slate-800 dark:border-b-slate-950 dark:bg-slate-950 dark:text-cyan-300">
           <Calculator size={18} />
           <span className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-2 -translate-x-1/2 whitespace-nowrap rounded bg-slate-800 px-2 py-1 text-xs text-white opacity-0 transition-opacity group-hover:opacity-100 dark:bg-slate-200 dark:text-slate-900">
@@ -105,7 +107,7 @@ export function ProblemForm({
         </div>
       </div>
 
-      <section className="relative z-0 rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition-colors duration-300 sm:p-5 dark:border-slate-800 dark:bg-slate-950">
+      <section className="relative z-0 rounded-xl lg:rounded-xl border-0 lg:border border-slate-200 bg-white p-2 lg:p-4 lg:shadow-sm transition-colors duration-300 sm:p-3 lg:sm:p-5 dark:border-slate-800 dark:bg-slate-950">
         {/* Capa de fondo con la imagen restringida a los bordes */}
         <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden rounded-xl">
           <div className="absolute inset-0 bg-[url(/star.png)] bg-auto bg-center bg-no-repeat opacity-20 transition-opacity duration-300 dark:opacity-100" aria-hidden="true" />
