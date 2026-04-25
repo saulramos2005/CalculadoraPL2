@@ -4,6 +4,7 @@ import { Method } from "./data/types";
 import { ProblemaLineal } from "./data/interfaces";
 import { STORAGE_KEY } from "./data/constants";
 import { solveGraphical, solveSimplex, solveDualSimplex, solveTwoPhase } from "./utils/methodWrappers";
+import { parseNumericValue } from "./utiles/numeros";
 import { Header } from "./components/Header";
 import { ProblemForm } from "./components/ProblemaForm";
 import { SolucionDisplay } from "./components/SolucionDisplay";
@@ -72,12 +73,12 @@ export function App() {
 
   const solveProblem = () => {
     const problemaLineal: ProblemaLineal = {
-      FuncionObjetivo: problem.FuncionObjetivo,
+      FuncionObjetivo: problem.FuncionObjetivo.map((v) => parseNumericValue(String(v)) || 0),
       desigualdades: problem.desigualdades.map((c, i) => ({
         id: `R${i + 1}`,
-        coeficientes: c.coeficientes,
+        coeficientes: c.coeficientes.map((v) => parseNumericValue(String(v)) || 0),
         operador: c.operador as "<=" | ">=" | "=",
-        rhs: c.rhs
+        rhs: parseNumericValue(String(c.rhs)) || 0
       })),
       tipo_optimizacion: problem.tipo_optimizacion,
       numVariables: problem.numVariables
