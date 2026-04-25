@@ -11,7 +11,7 @@ import { problemaEjemplo } from "./data/problemaEjemplo";
 
 const PROBLEM_STORAGE_KEY = "lp-problem-state";
 
-type MobileTab = "problema" | "visual" | "analitico" | "sensibilidad";
+type MobileTab = "problema" | "visual" | "analisis" | "sensibilidad";
 
 export function App() {
   const [problem, setProblem] = useState<ProblemaLineal>(() => {
@@ -97,6 +97,7 @@ export function App() {
     else feedbackMsg = `Solución óptima encontrada: ${result.ValorOptimo}`;
     
     setFeedback(feedbackMsg);
+    setMobileTab("visual");
   };
 
   return (
@@ -128,15 +129,15 @@ export function App() {
             <span className="text-sm whitespace-nowrap">Visual</span>
           </button>
           <button
-            onClick={() => setMobileTab("analitico")}
+            onClick={() => setMobileTab("analisis")}
             className={`flex items-center gap-2 rounded-t-lg border border-b-white p-2 transition-colors ${
-              mobileTab === "analitico" 
+              mobileTab === "analisis" 
                 ? "bg-white text-cyan-600 border-slate-200 dark:border-slate-800 dark:border-b-slate-950 dark:bg-slate-950 dark:text-cyan-300" 
                 : "bg-slate-50 text-slate-500 border-transparent dark:bg-slate-900 dark:text-slate-400"
             }`}
           >
             <FileText size={18} />
-            <span className="text-sm whitespace-nowrap">Analítico</span>
+            <span className="text-sm whitespace-nowrap">Análisis</span>
           </button>
         </div>
 

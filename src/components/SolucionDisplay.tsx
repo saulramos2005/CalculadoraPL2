@@ -31,7 +31,7 @@ interface SolucionDisplayProps {
   onTabChange?: (tab: Tab) => void;
 }
 
-type Tab = "visual" | "analitico" | "sensibilidad";
+type Tab = "visual" | "analisis" | "sensibilidad";
 
 export function SolucionDisplay({ 
   method, 
@@ -66,9 +66,9 @@ export function SolucionDisplay({
             <span className={tooltipClass}>Representación Visual</span>
           </button>
           <button
-            onClick={() => handleTabChange("analitico")}
-            className={`${tabBaseClass} ${activeTab === 'analitico' ? tabActiveClass : tabInactiveClass}`}
-            aria-label="Resumen Analítico"
+            onClick={() => handleTabChange("analisis")}
+            className={`${tabBaseClass} ${activeTab === 'analisis' ? tabActiveClass : tabInactiveClass}`}
+            aria-label="Análisis"
           >
             <FileText size={18} />
             <span className={tooltipClass}>Resumen Analítico</span>
@@ -110,7 +110,7 @@ export function SolucionDisplay({
               )}
             </div>
 
-            <div className={`space-y-4 ${activeTab === 'analitico' ? 'block' : 'hidden'}`}>
+            <div className={`space-y-4 ${activeTab === 'analisis' ? 'block' : 'hidden'}`}>
               {method === "grafico" ? (
                 <>
                   <ResumenSolucion activeResult={activeResult} />
