@@ -15,7 +15,8 @@ export default function FuncionObjetivo({ problem, updateObjectiveCoeff }: Funci
             <input
               value={value}
               onChange={(event) => updateObjectiveCoeff(index, event.target.value)}
-              className="w-20 rounded-lg border border-slate-300 bg-slate-50 px-2 py-1.5 text-sm outline-none transition focus:border-cyan-500 dark:border-slate-700 dark:bg-slate-950 dark:focus:border-cyan-400"
+              style={{ width: `calc(${String(value).length}ch + 1.5rem)` }}
+              className="min-w-[2rem] rounded-lg border border-slate-300 bg-slate-50 px-2 py-1.5 text-sm outline-none transition focus:border-cyan-500 dark:border-slate-700 dark:bg-slate-950 dark:focus:border-cyan-400"
               aria-label={`Coeficiente x${index + 1}`}
             />
             <span className="text-sm text-slate-800 dark:text-slate-200">x{index + 1}</span>

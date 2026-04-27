@@ -10,6 +10,7 @@ import GraficaSolucion from "./grafica/Grafica";
 import TablaAnalisis from "./Solucion/TablaAnalisis";
 import TablaIteraciones from "./Solucion/TablaIteraciones";
 import ObservacionesSolucion from "./Solucion/Observaciones";
+import EstadoInfactible from "./Solucion/EstadoInfactible";
 import EstadoVacio from "./Solucion/EstadoVacio";
 import { TablaVertices } from "./grafica/TablaVertices";
 
@@ -49,6 +50,8 @@ export function SolucionDisplay({
     if (onTabChange) onTabChange(tab);
   };
 
+  const isAnalisisDisabled = activeResult ? !activeResult.analysis.factible : false;
+
   return (
     <motion.section
       initial={{ opacity: 0, x: 20 }}
@@ -67,11 +70,12 @@ export function SolucionDisplay({
           </button>
           <button
             onClick={() => handleTabChange("analisis")}
-            className={`${tabBaseClass} ${activeTab === 'analisis' ? tabActiveClass : tabInactiveClass}`}
+            disabled={isAnalisisDisabled}
+            className={`${tabBaseClass} ${isAnalisisDisabled ? tabDisabledClass : activeTab === 'analisis' ? tabActiveClass : tabInactiveClass}`}
             aria-label="Análisis"
           >
             <FileText size={18} />
-            <span className={tooltipClass}>Resumen Analítico</span>
+            <span className={tooltipClass}>{isAnalisisDisabled ? "No disponible (Infactible)" : "Resumen Analítico"}</span>
           </button>
           <button
             disabled
@@ -99,7 +103,19 @@ export function SolucionDisplay({
             className="pt-2"
           >
             <div className={`space-y-4 ${activeTab === 'visual' ? 'block' : 'hidden'}`}>
-              {method === "grafico" ? (
+              {!activeResult.analysis.factible ? (
+                <>
+                  <EstadoInfactible observaciones={activeResult.analysis.observaciones} />
+                  {method !== "grafico" && (activeResult as SolucionSimplex).tablas?.length > 0 && (
+                    <div className="mt-6 border-t border-slate-200 dark:border-slate-800">
+                      <p className="text-slate-600 dark:text-slate-300 mx-2 my-4">
+                        A continuacion se muestra el desarrollo del método hasta el punto donde se detectó la infactibilidad, para ayudar a identificar posibles causas.
+                      </p>
+                      <TablaIteraciones activeResult={activeResult} problem={problem} />
+                    </div>
+                  )}
+                </>
+              ) : method === "grafico" ? (
                 <GraficaSolucion
                   solucion={activeResult as SolucionGrafica}
                   FuncionObjetivo={problem.FuncionObjetivo}
@@ -111,17 +127,21 @@ export function SolucionDisplay({
             </div>
 
             <div className={`space-y-4 ${activeTab === 'analisis' ? 'block' : 'hidden'}`}>
-              {method === "grafico" ? (
-                <>
-                  <ResumenSolucion activeResult={activeResult} />
-                  {activeResult.analysis.factible && (
-                    <TablaVertices solucion={activeResult as SolucionGrafica} />
-                  )}
-                </>
+              {!activeResult.analysis.factible ? (
+                <EstadoInfactible observaciones={activeResult.analysis.observaciones} />
               ) : (
-                <TablaAnalisis activeResult={activeResult} />
+                <>
+                  {method === "grafico" ? (
+                    <>
+                      <ResumenSolucion activeResult={activeResult} />
+                      <TablaVertices solucion={activeResult as SolucionGrafica} />
+                    </>
+                  ) : (
+                    <TablaAnalisis activeResult={activeResult} />
+                  )}
+                  <ObservacionesSolucion activeResult={activeResult} />
+                </>
               )}
-              <ObservacionesSolucion activeResult={activeResult} />
             </div>
 
             <div className={activeTab === 'sensibilidad' ? 'block' : 'hidden'}>

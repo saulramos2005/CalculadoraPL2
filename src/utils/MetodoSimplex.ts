@@ -23,7 +23,7 @@ export function resolverMetodoSimplex(
       ValorOptimo: 0,
       variables: {},
       analysis: {
-        observaciones: ["El método Simplex básico implementado solo acepta restricciones de tipo menor o igual (<=)."],
+        observaciones: ["El método Simplex básico implementado solo acepta restricciones de tipo menor o igual (≤)."],
         acotada: false,
         factible: false,
         degeneracion: false,

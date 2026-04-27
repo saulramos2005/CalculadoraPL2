@@ -102,7 +102,7 @@ export function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 transition-colors duration-300 dark:bg-slate-700 dark:text-slate-100">
+    <div className="min-h-screen overflow-x-hidden bg-slate-50 text-slate-900 transition-colors duration-300 dark:bg-slate-700 dark:text-slate-100">
       <Header isDarkMode={isDarkMode} toggleTheme={() => setIsDarkMode(!isDarkMode)} />
       <main className="mx-auto flex flex-col w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
         
@@ -131,8 +131,11 @@ export function App() {
           </button>
           <button
             onClick={() => setMobileTab("analisis")}
+            disabled={activeResult ? !activeResult.analysis.factible : false}
             className={`flex items-center gap-2 rounded-t-lg border border-b-white p-2 transition-colors ${
-              mobileTab === "analisis" 
+              (activeResult && !activeResult.analysis.factible)
+                ? "bg-slate-50 text-slate-400 border-transparent dark:bg-slate-900 dark:text-slate-600 opacity-50 cursor-not-allowed"
+                : mobileTab === "analisis" 
                 ? "bg-white text-cyan-600 border-slate-200 dark:border-slate-800 dark:border-b-slate-950 dark:bg-slate-950 dark:text-cyan-300" 
                 : "bg-slate-50 text-slate-500 border-transparent dark:bg-slate-900 dark:text-slate-400"
             }`}
